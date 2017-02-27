@@ -1,6 +1,7 @@
 # build with laravel
 
-## apache 配置
+## 配置
+* apache
 ```
  <VirtualHost *:80>
       ServerName laravel.app
@@ -16,4 +17,7 @@
      </Directory>
 </VirtualHost>
 ```
+
+* store目录需要777权限
+* php打开 mod_rewrite.so
 
