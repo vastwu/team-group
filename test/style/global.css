@@ -1,9 +1,18 @@
 button {
-  background-color: #ddd;
+  background-color: #20a0ff;
   border-radius: 4px;
   border: none;
   padding: 10px 15px;
-  cursor: pointer
+  cursor: pointer;
+  color: #fff;
+}
+button:disabled {
+  background-color: #ddd;
+}
+button.large{
+  width: 100%;
+  font-size: 17px;
+  line-height: 22px;
 }
 
 input[type="text"]{
@@ -14,10 +23,18 @@ input[type="text"]{
   outline: none;
 }
 
+.pointer{
+  cursor: pointer;
+}
 #app{
   display: none;
   width: 80%;
   margin: 30px auto;
+}
+.api-list{
+  margin-left: 20px;
+  padding-left: 50px;
+  border-left: 5px solid #aaa;
 }
 .api-block{
   margin-left: 20px;

@@ -18,25 +18,28 @@
         <label>API domain:</label> 
         <input type="text" v-model="apiDomain"/>
       </div>
-      <div class="api-list" v-for="api in interfaces">
-        <h3>{{api.title}}</h3>
-        <div class="api-block">
-          <p>
-            <span class="method">【{{api.method.toUpperCase()}}】</span>
-            <input type="text" v-model="api.url" />
-          </p>
-          <div v-if="api.body">
-            <h4>Request body</h4>
-            <pre class="code post-body" v-if="api.body">{{api.body | jsonStringify}}</pre>
+      <div class="restful-list" v-for="item in interfaces">
+        <h2 class="pointer" @click="toggle(item)">{{item.title}}</h2>
+        <div class="api-list" v-for="api in item.interfaces" v-show="item.expand">
+          <h3 class="pointer" @click="toggle(api)">{{api.title}}</h3>
+          <div class="api-block" v-show="api.expand">
+            <p>
+              <span class="method">【{{api.method.toUpperCase()}}】</span>
+              <input type="text" v-model="api.url" />
+            </p>
+            <div v-if="api.body">
+              <h4>Request body</h4>
+              <pre class="code post-body" v-if="api.body">{{api.body | jsonStringify}}</pre>
+            </div>
+            <p>
+              <button class="large" :disabled="api.submiting" @click="send(api)">发送</button>
+            </p>
+            <div v-if="api.response">
+              <h4>Response body</h4>
+              <pre class="code response" :class="api.responseType">{{api.response | jsonStringify}}</pre>
+            </div>
           </div>
-          <p>
-            <button :disabled="api.submiting" @click="send(api)">发送</button>
-          </p>
-          <div v-if="api.response">
-            <h4>Response body</h4>
-            <pre class="code response" :class="api.responseType">{{api.response | jsonStringify}}</pre>
-          </div>
-        </div>
+        </div> 
       </div> 
     </div>
     <script src="./lib/require.js" data-main="src/main.js"></script>
