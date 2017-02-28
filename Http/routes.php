@@ -15,9 +15,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/hello', function () {
-    return "hello world";
+  $content = [
+    'error' => 'hello'
+  ];
+  return response()
+          ->json($content);
 });
-Route::resource('photo', 'PhotoController');
+
+Route::resource('group', 'GroupController');
 /*
 |--------------------------------------------------------------------------
 | Application Routes

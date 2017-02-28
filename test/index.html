@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <title>Test</title>
+    <link href="style/global.css"  type="text/css" rel="stylesheet" />
+    <script>
+      window.require = {
+        baseUrl: './',
+        paths: {
+          'vue': 'lib/vue.min',
+          'vue-resource': 'lib/vue-resource.min'
+        }
+      }
+    </script> 
+  </head>  
+  <body>
+    <div id="app">
+      <div>
+        <label>API domain:</label> 
+        <input type="text" v-model="apiDomain"/>
+      </div>
+      <div class="api-list" v-for="api in interfaces">
+        <h3>{{api.title}}</h3>
+        <div class="api-block">
+          <p>
+            <span class="method">【{{api.method.toUpperCase()}}】</span>
+            <input type="text" v-model="api.url" />
+          </p>
+          <div v-if="api.body">
+            <h4>Request body</h4>
+            <pre class="code post-body" v-if="api.body">{{api.body | jsonStringify}}</pre>
+          </div>
+          <p>
+            <button :disabled="api.submiting" @click="send(api)">发送</button>
+          </p>
+          <div v-if="api.response">
+            <h4>Response body</h4>
+            <pre class="code response" :class="api.responseType">{{api.response | jsonStringify}}</pre>
+          </div>
+        </div>
+      </div> 
+    </div>
+    <script src="./lib/require.js" data-main="src/main.js"></script>
+  </body>  
+</html>

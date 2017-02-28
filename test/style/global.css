@@ -1,0 +1,40 @@
+button {
+  background-color: #ddd;
+  border-radius: 4px;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer
+}
+
+input[type="text"]{
+  border: none;
+  border-bottom: 1px solid rgba(100, 100, 100, 0.5);
+  font-size: 18px;
+  padding: 0 8px 3px;
+  outline: none;
+}
+
+#app{
+  display: none;
+  width: 80%;
+  margin: 30px auto;
+}
+.api-block{
+  margin-left: 20px;
+  padding-left: 50px;
+  border-left: 5px solid #ddd;
+}
+.api-block .code{
+  background-color: #333;
+  color: #fff;
+  padding: 15px;
+  width: 50%;
+  border-radius: 4px;
+}
+.api-block .code.error{
+  color: #ff0000;
+}
+.api-block .method{
+  font-weight: bolder;
+  margin-right: 5px;
+}
