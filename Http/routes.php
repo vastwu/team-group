@@ -14,15 +14,9 @@
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/hello', function () {
-  $content = [
-    'error' => 'hello'
-  ];
-  return response()
-          ->json($content);
-});
 
 Route::resource('group', 'GroupController');
+Route::resource('user', 'UserController');
 /*
 |--------------------------------------------------------------------------
 | Application Routes

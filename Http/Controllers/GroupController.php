@@ -22,11 +22,12 @@ class GroupController extends Controller
     $body = $request->all();
     $result = $users = DB::insert('
       insert into `group`
-        (`title`, limit_amount, limit_users, createtime, finishtime, summary, images, contact, commodities, custom_fields, `status`) 
+        (`title`, userid, limit_amount, limit_users, createtime, finishtime, summary, images, contact, commodities, custom_fields, `status`) 
         values 
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           $body['title'],
+          $body['userid'],
           $body['limit_amount'],
           $body['limit_users'],
           time() * 1000,

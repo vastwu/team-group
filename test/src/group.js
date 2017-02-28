@@ -1,11 +1,12 @@
 define(function (require, exports, module) {
 
   var groupInterface = [{
-    title: '创建',
+    title: '创建拼团',
     url: '/group',
     method: 'POST',
     body: {
       title: '创建的标题' ,
+      userid: '1234566',
       limit_amount: 20003,
       limit_users: 30,
       finishtime: Date.now(),
@@ -22,7 +23,7 @@ define(function (require, exports, module) {
       custom_fields: ['手机', '电话', '地址', '自定义']
     }
   }, {
-    title: '获取单条详情',
+    title: '获取单条拼团详情',
     url: '/group/16',
     method: 'GET'
   }];

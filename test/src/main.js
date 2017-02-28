@@ -3,6 +3,7 @@ define(function (require, exports, module) {
   var VueResource = require('vue-resource');
 
   var GroupApi = require('src/group');
+  var UserApi = require('src/user');
 
   Vue.use(VueResource);
 
@@ -10,6 +11,7 @@ define(function (require, exports, module) {
   var EXPAND_ALL = true;
 
   var interfaces = [];
+  interfaces.push(UserApi);
   interfaces.push(GroupApi);
 
 
