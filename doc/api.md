@@ -107,9 +107,26 @@ API_ROOT: '/'
 
 
 ### 提前结束拼团
+`[DELETE] /api/group/group_id`
 
 ### 拼团搜索
+`[GET] /api/group?query=xxx`
 
 ### 参加拼团
+`[POST] /api/participant`
 
+#### request-body
+```js
+{
+}
+```
+
+#### response-body
+```js
+{
+    error: 0,
+    msg: null,
+    result: {}
+}
+```
 
