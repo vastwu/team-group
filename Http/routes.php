@@ -15,8 +15,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::resource('group', 'GroupController');
 Route::resource('user', 'UserController');
+Route::resource('group', 'GroupController');
+Route::resource('group.participant', 'ParticipantController');
+
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes

@@ -41,18 +41,41 @@ input[type="text"]{
   margin-left: 20px;
   padding-left: 50px;
   border-left: 5px solid #ddd;
+  overflow: hidden;
 }
 .api-block .code{
   background-color: #333;
   color: #fff;
   padding: 15px;
-  width: 50%;
   border-radius: 4px;
+  overflow: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+.api-block .post-body.code{
+  color: #000;
+  background-color: #fff;
 }
 .api-block .code.error{
   color: #ff0000;
 }
+.api-block .code.warn{
+  color: yellow;
+}
 .api-block .method{
   font-weight: bolder;
   margin-right: 5px;
+}
+.request-code,
+.response-code{
+  width: 48%;
+  float: left;
+}
+.response-code{
+  margin-left: 2%;
+}
+.comments-list{
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: 2px;
 }

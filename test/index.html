@@ -23,18 +23,25 @@
         <div class="api-list" v-for="api in item.interfaces" v-show="item.expand">
           <h3 class="pointer" @click="toggle(api)">{{api.title}}</h3>
           <div class="api-block" v-show="api.expand">
+            <h4>地址</h5>
             <p>
               <span class="method">【{{api.method.toUpperCase()}}】</span>
               <input type="text" v-model="api.url" />
             </p>
-            <div v-if="api.body">
-              <h4>Request body</h4>
-              <pre class="code post-body" v-if="api.body">{{api.body | jsonStringify}}</pre>
+            <div v-if="api.comments" class="comments">
+              <h4>说明</h5>
+              <ul class="comments-list">
+                <li v-for="comment in api.comments">{{comment}}</li>
+              </ul>
             </div>
             <p>
               <button class="large" :disabled="api.submiting" @click="send(api)">发送</button>
             </p>
-            <div v-if="api.response">
+            <div v-if="api.body" class="request-code">
+              <h4>Request body</h4>
+              <pre class="code post-body" v-if="api.body">{{api.body | jsonStringify}}</pre>
+            </div>
+            <div v-if="api.response" class="response-code">
               <h4>Response body</h4>
               <pre class="code response" :class="api.responseType">{{api.response | jsonStringify}}</pre>
             </div>

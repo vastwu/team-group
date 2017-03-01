@@ -4,6 +4,7 @@ define(function (require, exports, module) {
 
   var GroupApi = require('src/group');
   var UserApi = require('src/user');
+  var ParticipantApi = require('src/participant');
 
   Vue.use(VueResource);
 
@@ -11,6 +12,7 @@ define(function (require, exports, module) {
   var EXPAND_ALL = true;
 
   var interfaces = [];
+  interfaces.push(ParticipantApi);
   interfaces.push(UserApi);
   interfaces.push(GroupApi);
 
@@ -19,6 +21,9 @@ define(function (require, exports, module) {
     return function (response) {
       api.responseType = '';
       api.submiting = false;
+      if (response.error !== 0) {
+        api.responseType = 'warn';
+      }
       api.response = response.body;
     }
   }

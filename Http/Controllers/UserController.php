@@ -9,27 +9,35 @@ use App\Http\Requests;
 
 class UserController extends Controller
 {
+
+
   public function __construct()
   {
     $this->middleware('crossRequest');
   }
 
-  // post 创建
-  public function index(Request $request)
+  public function getUser($key, $value)
   {
-  }
-
-  public function getUserByOpenid ($openid)
-  {
-    $user = DB::table('user')->where('openid', $openid)->first(); 
+    $user = DB::table('user')->where($key, $value)->first(); 
     // stcClass -> array
     $user = json_decode( json_encode( $user ),true);
     return $user;
   }
-  // query no index
+  // post create
   public function store(Request $request)
   {
-    $code = $request->input('code');
+    $params = $request->all();
+    $err = $this->validator($params, [
+      'code' => 'required',
+      'name' => 'required',
+      'avatar' => 'required'
+    ]);
+
+    if ($err !== null) {
+      return $this->json(-1, $err);
+    }
+
+    $code = $params['code'];
     $appId = env('WECHAT_APP_ID');
     $secret = env('WECHAT_SECRET');
     $wechatApiUrl = "https://api.weixin.qq.com/sns/jscode2session?".join('&', [
@@ -38,14 +46,17 @@ class UserController extends Controller
       "js_code=$code",
       "grant_type=authorization_code"
     ]);
-    # mock
-    $wechatResult = [
-      #"errcode" => 'xx',
-      #"errmsg" => 'xx',
-      "session_key" => "OiP2i\/vANUo18H4RxluqSA==",
-      "openid" => "oNQkY0Vxlhxb0QmbQV9urcjGIhW0--++"
-    ];
-    #$wechatResult = json_decode(file_get_contents($wechatApiUrl));
+    if ($code === "user_code") {
+      # mock
+      $wechatResult = [
+        #"errcode" => 'xx',
+        #"errmsg" => 'xx',
+        "session_key" => "OiP2i\/vANUo18H4RxluqSA==",
+        "openid" => "oNQkY0Vxlhxb0QmbQV9urcjGIhW0--++"
+      ];
+    } else {
+      $wechatResult = json_decode(file_get_contents($wechatApiUrl));
+    }
     if (isset($wechatResult['errcode'])) {
       return response()->json([
         "error" => $wechatResult['errcode'],
@@ -53,17 +64,28 @@ class UserController extends Controller
       ]);
     }
     $openid = $wechatResult['openid'];
-    $user = $this->getUserByOpenid($openid);
-
-    if (!$user) {
+    $user = $this->getUser('openid', $openid);
+    $now = time() * 1000;
+    if ($user) {
+      // 注册过，更新
+      $user['name'] = $params['name'];
+      $user['avatar'] = $params['avatar'];
+      $user['updatetime'] = $now;
+      $user['session_key'] = $wechatResult['session_key'];
+      DB::table('user')
+        ->where('id', $user['id'])
+        ->update($user);
+    } else {
       // 未注册过，插入
       $user = [
-        'session_id' => md5(md5($openid)),
+        // token 就是 加密后的3rd_session_id
+        'token' => md5(md5($openid)),
         'session_key' => $wechatResult['session_key'],
         'openid' => $openid,
-        'name' => $request->input('name'),
-        'avatar' => $request->input('avatar'),
-        'createtime' => time() * 1000,
+        'name' => $params['name'],
+        'avatar' => $params['avatar'],
+        'createtime' => $now,
+        'updatetime' => $now
       ];
       $id = DB::table('user')->insertGetId($user);
       $user['isnew'] = '1';
@@ -71,11 +93,17 @@ class UserController extends Controller
     }
     unset($user['session_key']);
     unset($user['openid']);
-    return response()->json($user);
+    return $this->json(0, $user);
   }
 
-  // get with index, get one
+  // 根据token获取用户信息
   public function show(Request $request, $id)
   {
+    $user = $this->getUser('token', $id);
+    unset($user['session_key']);
+    unset($user['openid']);
+    //$c = new \Cookie('xxxx', 'vvvv');
+    //return response()->json($user)->withCookie($c);
+    return $this->json(0, $user);
   }
 }
