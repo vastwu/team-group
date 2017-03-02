@@ -23,7 +23,10 @@ input[type="text"]{
   outline: none;
   width: 80%;
 }
-
+i.expand-flag{
+  font-style: normal;
+  margin-right: 5px;
+}
 .pointer{
   cursor: pointer;
 }

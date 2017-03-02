@@ -19,9 +19,13 @@
         <input type="text" v-model="apiDomain"/>
       </div>
       <div class="restful-list" v-for="item in interfaces">
-        <h2 class="pointer" @click="toggle(item)">{{item.title}}</h2>
+        <h2 class="pointer" @click="toggle(item)">
+          <i class="expand-flag">{{item.expand ? '-' : '+'}}</i>{{item.title}}
+        </h2>
         <div class="api-list" v-for="api in item.interfaces" v-show="item.expand">
-          <h3 class="pointer" @click="toggle(api)">{{api.title}}</h3>
+          <h3 class="pointer" @click="toggle(api)">
+            <i class="expand-flag">{{api.expand ? '-' : '+'}}</i>{{api.title}}
+          </h3>
           <div class="api-block" v-show="api.expand">
             <h4>地址</h5>
             <p>

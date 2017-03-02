@@ -17,7 +17,7 @@ class GroupController extends Controller
   {
     $this->middleware('crossRequest');
   }
-  public function decodeGroup (& $group)
+  public function decodeGroup ($group)
   {
     $group = json_decode( json_encode( $group ), true);
     $group['images'] = json_decode($group['images']);
@@ -55,6 +55,8 @@ class GroupController extends Controller
       'userid' => $params['userid'],
       'limit_amount' => $params['limit_amount'],
       'limit_users' => $params['limit_users'],
+      'total_amount' => 0,
+      'total_users' => 0,
       'createtime' => time() * 1000,
       'finishtime' => $params['finishtime'],
       'summary' => $params['summary'],
@@ -101,6 +103,43 @@ class GroupController extends Controller
         $groups[$index] = $this->decodeGroup($group);
       }
       return $this->json(0, $groups);
+    } else if ($request->has('participant')) {
+      // 根据参与者获取团信息
+      $participant = $request->input('participant');
+      $pagenumber = $request->has('pagenumber') ? $request->input('pagenumber') : 1;
+      $pagesize = $request->has('pagesize') ? $request->input('pagesize') : null;
+
+      $sql = "
+        select * from
+          (select * from `group`) A
+          right join 
+          (select `groupid`, createtime as jointime, custom_values, commodities as participant_commodities from participant where uid = ?) B
+          on A.id = B.groupid
+          order by jointime desc
+      ";
+      if ($pagesize !== null) {
+        # 有分页
+        $skip = $pagesize * ($pagenumber - 1);
+        $take = $pagesize;
+        $sql .= " limit $skip, $take";
+      }
+      $groups = DB::select($sql, [
+        $participant
+      ]);
+      $total_price = 0;
+      foreach($groups as $index => $group) {
+        $group->custom_values = json_decode($group->custom_values);
+        $participant_commodities = json_decode($group->participant_commodities);
+        unset($group->participant_commodities);
+        $parsed = $this->decodeGroup($group);
+        foreach($parsed['commodities'] as $i => $item) {
+          $item->count = $participant_commodities[$i];
+          $total_price += $item->count * $item->price;
+        }
+        $parsed['total_price'] = $total_price;
+        $groups[$index] = $parsed;
+      }
+      return $this->json(0, $groups);
     }
     return response()->json([]);
   }
@@ -110,12 +149,23 @@ class GroupController extends Controller
   {
     $group = DB::table('group')->where('id', $id)->first();
     // stcClass -> array
-    if ($group) {
-      $this->decodeGroup($group);
-      return $this->json(0, $group);
-    } else {
+    if (!$group) {
       return $this->json(0, null);
     }
+    $group = $this->decodeGroup($group);
+    // 需要获取参团者信息, 默认获取4个
+    $limit = $request->has('participant_limit') ? $request->input('participant_limit') : 4;
+    $participants = DB::table('participant')
+      ->where('groupid', $id)
+      ->orderBy('createtime', 'desc')
+      ->take($limit)
+      ->get();
+    foreach($participants as $p) {
+      $p->custom_fields = json_decode($p->custom_fields);
+      $p->custom_values = json_decode($p->custom_values);
+    }
+    $group['participant'] = $participants;
+    return $this->json(0, $group);
 
   }
 }

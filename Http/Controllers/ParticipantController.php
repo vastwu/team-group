@@ -18,70 +18,16 @@ class ParticipantController extends Controller
     $this->middleware('crossRequest');
   }
 
-  // post 创建
-  public function store(Request $request, $groupid)
+  // 根据商品价格和购买数量计算总价
+  public function sumAmountByCommodity($joinGroupcommodities, $commoditiesCount)
   {
-    #var_dump($request->cookie('aaa'));
-    #return response("")->withCookie('aaa', 'bbb');
-
-    $err = $this->validator($request->all(), [
-      'uid' => 'required'
-    ]);
-    if ($err !== null) {
-      return $this->json(-1, $err);
+    // 计算总金额
+    $total_amount = 0;
+    foreach($joinGroupcommodities as $index => $commodity) {
+      $total_amount += $commodity['price'] * $commoditiesCount[$index];
     }
-    // 是否有效
-    $groups = DB::table('group')
-      ->where('id', $groupid)
-      ->get();
-    if (!isset($groups[0])) {
-      return $this->json(-1, "拼团不存在");
-    }
-
-    // 是否过期
-    $finishtime = $groups[0]->finishtime;
-    if (time() * 1000 > $finishtime) {
-      return $this->json(-1, "拼团已结束");
-    }
-
-    // 是否已参加过
-    $joined = DB::table('participant')
-      ->where([
-        'groupid' => $groupid,
-        'uid' => $request->input('uid')
-      ])
-      ->get();
-    if (isset($joined[0])) {
-      return $this->json(-1, "已经参加过该团");
-    }
-
-    $joinGroup = $groups[0];
-    $customFields = json_decode($joinGroup->custom_fields);
-    $customValues = [];
-    $customFieldsCount = count($customFields);
-    if ($customFieldsCount > 0) {
-      // 有自定义字段
-      $customValues = $request->input('custom_values');
-      if ($customFieldsCount !== count($customValues)) {
-        return $this->json(-1, "卖家填写内容和需求数量不符");
-      }
-    }
-    $participant = [
-      'uid' => $request->input('uid'),
-      'createtime' => time() * 1000,
-      'groupid' => $groupid,
-      'custom_fields' => json_encode($customFields),
-      'custom_values' => json_encode($customValues)
-    ];
-    $id = DB::table('participant')->insertGetId($participant);
-    if ($id) {
-      return $this->json(0, ['id' => $id]);
-    } else {
-      return $this->json(-1, "参与失败");
-    }
-
+    return $total_amount;
   }
-
   // query
   public function index(Request $request, $groupid)
   {
@@ -97,10 +43,13 @@ class ParticipantController extends Controller
       $query->take($pagesize);
     }
     $participants = $query->get();
-
+    foreach($participants as $item){
+      $item->custom_values = json_decode($item->custom_values, true);
+      $item->custom_fields = json_decode($item->custom_fields, true);
+      $item->commodities = json_decode($item->commodities, true);
+    }
     return $this->json(0, $participants);
   }
-
   // get with index, get one
   public function show(Request $request, $groupid, $pid)
   {
@@ -108,5 +57,157 @@ class ParticipantController extends Controller
       'action' => 'show',
       'gid' => $groupid
     ]);
+  }
+
+  // post 创建
+  public function store(Request $request, $groupid)
+  {
+    #var_dump($request->cookie('aaa'));
+    #return response("")->withCookie('aaa', 'bbb');
+
+    $err = $this->validator($request->all(), [
+      'uid' => 'required'
+    ]);
+    if ($err !== null) {
+      return $this->json(-1, $err);
+    }
+    // 是否有效
+    $groups = DB::table('group')
+      ->where('id', $groupid)
+      ->where('status', '>=',  0)
+      ->get();
+    if (!isset($groups[0])) {
+      // 不存在
+      return $this->json(11);
+    }
+
+    // 是否过期
+    $finishtime = $groups[0]->finishtime;
+    if (time() * 1000 > $finishtime) {
+      // 已过期
+      return $this->json(12);
+    }
+
+    // 是否已参加过
+    $joined = DB::table('participant')
+      ->where([
+        'groupid' => $groupid,
+        'uid' => $request->input('uid')
+      ])
+      ->get();
+    if (isset($joined[0])) {
+      // 已经参加过了
+      return $this->json(13);
+    }
+
+    $joinGroup = $groups[0];
+    $customFields = json_decode($joinGroup->custom_fields, true);
+    $customValues = [];
+    $customFieldsCount = count($customFields);
+    if ($customFieldsCount > 0) {
+      // 有自定义字段
+      $customValues = $request->input('custom_values');
+      if ($customFieldsCount !== count($customValues)) {
+        return $this->json(14);
+      }
+    }
+
+    // 检查商品情况
+    $joinGroupcommodities = json_decode($joinGroup->commodities, true);
+    $commodities = $request->input('commodities');
+    if (count($joinGroupcommodities) !== count($commodities)) {
+      return $this->json(15);
+    }
+
+    $participant = [
+      'uid' => $request->input('uid'),
+      'createtime' => time() * 1000,
+      'groupid' => $groupid,
+      'commodities' => json_encode($commodities),
+      'custom_fields' => json_encode($customFields),
+      'custom_values' => json_encode($customValues)
+    ];
+
+    // 更新拼团信息
+    // 人数+1
+    $joinGroup->total_users++;
+    // 计算总金额
+    $total_amount = $this->sumAmountByCommodity($joinGroupcommodities, $commodities);
+    $joinGroup->total_amount += $total_amount;
+
+    $error = null;
+    try{
+      DB::beginTransaction();
+      $id = DB::table('participant')->insertGetId($participant);
+      if ($id) {
+        // 拼团参加成功，更新group组的钱数和人数
+        DB::table('group')
+          ->where('id', $joinGroup->id)
+          ->update(json_decode(json_encode($joinGroup), true)); // to array
+      } else {
+        $error = "创建失败";
+        DB::rollBack(); 
+      }
+      DB::commit();
+    } catch (Exception $e) {
+      DB::rollBack(); 
+      $error = $e->getMessage();
+    }
+
+    if ($error) {
+      return $this->json(16);
+    } else {
+      return $this->json(0, ['id' => $id]);
+    }
+  }
+
+  // 移除参团订单
+  public function destroy($groupid, $id)
+  {
+    // 拼团是否存在
+    $participant = DB::table('participant')
+      ->where('id', $id)
+      ->where('groupid', $groupid)
+      ->first();
+    if (!$participant) {
+      // 不存在
+      return $this->json(17);
+    }
+    // 是否有效
+    $group = DB::table('group')
+      ->where('id', $groupid)
+      ->first();
+    if (!$group) {
+      // 不存在
+      return $this->json(11);
+    }
+
+    // 更新团数据
+    $group->total_users--;
+    // 更新团金额
+    $joinGroupcommodities = json_decode($group->commodities, true);
+    $commodities = json_decode($participant->commodities, true);
+    $group->total_amount -= $this->sumAmountByCommodity($joinGroupcommodities, $commodities);
+
+    $error = null;
+    // 移除订单
+    try{
+      DB::beginTransaction();
+      $result = DB::table('participant')
+        ->where('id', $id)
+        ->delete();
+      DB::table('group')
+        ->where('id', $group->id)
+        ->update(json_decode(json_encode($group), true));
+      DB::commit();
+    } catch (Exception $e) {
+      DB::rollBack(); 
+      $error = $e->getMessage();
+    }
+    if ($error) {
+      return $this->json(-1, $error);
+    } else {
+      return $this->json(0, $result);
+    }
   }
 }

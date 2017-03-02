@@ -25,18 +25,35 @@ define(function (require, exports, module) {
     }
   }, {
     title: '获取单条拼团详情',
-    url: '/group/16',
-    method: 'GET'
-  }, {
-    title: '查询一组拼团信息',
-    url: '/group?creator=1234566',
+    url: '/group/42?participant_limit=1',
     method: 'GET',
     comments: [
-      'pagesize: 单页数量，默认值返回所有, 不分页',
-      'pagenumber: 分页页号，从1开始，查询页数越界时，result = []',
-      'creator: 根据创建者uid查询',
+      'query.participant_limit: 获取几个参与者的信息, 默认获取 4 个',
+      'tips: 该接口可以通过传participant_limit=5，来检测是否有4+ 个用户，需求只展示4个，如果返回5个表示实际数量大于4，可以显示...样式'
     ]
-
+  }, {
+    title: '根据创建者查询拼团信息',
+    url: '/group?creator=1234566&pagesize=1&pagenumber=1',
+    method: 'GET',
+    comments: [
+      'query.pagesize: 单页数量，默认值返回所有, 不分页',
+      'query.pagenumber: 分页页号，从1开始，查询页数越界时，result = []',
+      'query.creator: 根据创建者uid查询',
+    ]
+  }, {
+    title: '根据参与者查询拼团信息',
+    url: '/group?participant=21&pagesize=1&pagenumber=1',
+    method: 'GET',
+    comments: [
+      'query.pagesize: 单页数量，默认值返回所有, 不分页',
+      'query.pagenumber: 分页页号，从1开始，查询页数越界时，result = []',
+      'query.participant: 根据参与者uid查询',
+      '相比常规的拼团数据，该接口会额外返回一些参与者订单相关信息',
+      'group.jointime: 参与时间, 排序和分页会依照该时间倒叙排列',
+      'group.custom_values: 参与者填写的字段值, 此处因涉及顺序问题，没有和value合并,展示时需要协同custom_fields',
+      'group.commodities.*.count: 参与者选择的商品数量',
+      'grou.total_price: 商品总价'
+    ]
   }];
 
   module.exports = {

@@ -106,4 +106,13 @@ class UserController extends Controller
     //return response()->json($user)->withCookie($c);
     return $this->json(0, $user);
   }
+  public function destroy($id)
+  {
+    $result = DB::table('user')->where('id', $id)->delete();
+    if ($result) {
+      return $this->json(0, $result);
+    } else {
+      return $this->json(-1, "用户不存在");
+    }
+  }
 }

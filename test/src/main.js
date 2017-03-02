@@ -76,6 +76,9 @@ define(function (require, exports, module) {
           case 'POST':
             this.$http.post(sendUrl, api.body).then(getSuccessHandler(api), getErrorHandler(api))
             break;
+          case 'DELETE':
+            this.$http.delete(sendUrl).then(getSuccessHandler(api), getErrorHandler(api))
+            break;
           default:
             //get
             this.$http.get(sendUrl).then(getSuccessHandler(api), getErrorHandler(api))

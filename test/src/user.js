@@ -23,6 +23,14 @@ define(function (require, exports, module) {
       '/user 后跟的是token',
       '如果token对应的用户不存在，则会返回 {error: 0, result: null}'
     ]
+  }, {
+    title: '删除用户',
+    url: '/user/22',
+    method: 'DELETE',
+    comments: [
+      '/user 后跟的是 uid',
+      '该接口仅用于辅助开发和测试，切勿用于生产环境'
+    ]
   }];
 
   module.exports = {
