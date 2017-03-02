@@ -17,6 +17,7 @@ Route::get('/', function () {
 
 Route::resource('user', 'UserController');
 Route::resource('group', 'GroupController');
+Route::resource('upload', 'UploadController');
 Route::resource('group.participant', 'ParticipantController');
 
 

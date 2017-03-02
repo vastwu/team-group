@@ -20,6 +20,7 @@ class Controller extends BaseController
 
     public $errReason = [
       // 参加
+      '100' => '文件格式错误',
       '11' => '拼团不存在',
       '12' => '拼团已结束',
       '13' => '已经参加过该团',

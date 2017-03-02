@@ -10,7 +10,7 @@ define(function (require, exports, module) {
       userid: '1234566',
       limit_amount: 20003,
       limit_users: 30,
-      finishtime: Date.now(),
+      finishtime: Date.now() + 24 * 3600,
       summary: '简介简介',
       images: ['http://www.baidu.com/a.png', 'http://yyy.com/ba/b'],
       contact: '11111111111',
@@ -58,6 +58,14 @@ define(function (require, exports, module) {
 
   module.exports = {
     title: 'group',
-    interfaces: groupInterface
+    interfaces: groupInterface,
+    comments: [
+      'group.status: 状态说明, 小于0的均为审核后台操作的非常规状态',
+      '   0: 正常',
+      '   1: 过期',
+      '   -1: 违法内容',
+      '   -2: 低俗色情',
+      '   -3: 其他原因'
+    ]
   }
 })

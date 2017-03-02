@@ -25,6 +25,10 @@ class GroupController extends Controller
     $group['commodities'] = json_decode($group['commodities']);
     // 自定义字段
     $group['custom_fields'] = json_decode($group['custom_fields']);
+    if ($group['finishtime'] <= time() * 1000 && $group['status'] === 0) {
+      // 已过期
+      $group['status'] = 1;
+    }
     return $group;
   }
 
@@ -50,7 +54,7 @@ class GroupController extends Controller
 
     $params = $request->all();
 
-    $uid = DB::table('group')->insertGetId([
+    $gid = DB::table('group')->insertGetId([
       'title' => $params['title'],
       'userid' => $params['userid'],
       'limit_amount' => $params['limit_amount'],
@@ -67,7 +71,7 @@ class GroupController extends Controller
       'status' => 0
     ]);
     if ($uid) {
-      return $this->json(0, [ 'uid'=> $uid]);
+      return $this->json(0, [ 'id'=> $gid]);
     } else {
       return $this->json(-1, $result);
     }

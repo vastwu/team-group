@@ -15,6 +15,8 @@
   <body>
     <div id="app">
       <div class="menu">
+        <button type="button"  @click="toggleAll(1)" />全部展开</button>
+        <button type="button"  @click="toggleAll(0)" />全部收起</button>
         <ul>
           <li v-for="item in interfaces">
             <b>{{item.title}}</b> 
@@ -30,10 +32,35 @@
         <label>API domain:</label> 
         <input type="text" v-model="apiDomain"/>
       </div>
+
+      <div class="restful-list">
+        <h2 class="pointer">upload</h2>
+        <div class="api-list" >
+          <h3 class="pointer" id="anchor_upload">上传图片</h3>
+          <div class="api-block">
+            <h4>地址</h5>
+            <p>
+              <span class="method">【POST】</span>
+              <input type="text" value="/upload" />
+            </p>
+            <iframe style="display:none;" id="uploadIframe" name="uploadIframe" ></iframe>
+            <form target="uploadIframe" method="post" :action="apiDomain + '/upload'" enctype="multipart/form-data"  >
+              <input name="file" type="file" onchange="this.parentNode.submit()" />
+            </form>
+          </div>
+        </div>
+      </div>
+
       <div class="restful-list" v-for="item in interfaces">
         <h2 class="pointer" @click="toggle(item)">
           <i class="expand-flag">{{item.expand ? '-' : '+'}}</i>{{item.title}}
         </h2>
+        <div v-if="item.comments" class="comments">
+          <h4>说明</h5>
+          <ul class="comments-list">
+            <li v-for="comment in item.comments">{{comment}}</li>
+          </ul>
+        </div>
         <div class="api-list" v-for="api in item.interfaces" v-show="item.expand">
           <h3 class="pointer" @click="toggle(api)" :id="'anchor_' + api.title">
             <i class="expand-flag">{{api.expand ? '-' : '+'}}</i>{{api.title}}

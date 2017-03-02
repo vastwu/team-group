@@ -66,10 +66,24 @@ define(function (require, exports, module) {
       }
     },
     methods: {
+      uploadFileChange: function () {
+
+      },
+      toggleAll: function (expand) {
+        this.interfaces.forEach(function (item) {
+          item.expand = expand;
+          item.interfaces.forEach(function (api) {
+            api.expand = expand;
+          })
+        })
+      },
       toggle: function (item) {
         item.expand = !item.expand;
       },
       send: function (api) {
+        if (typeof api.send === 'function') {
+          return api.send(this.apDomain);
+        }
         var sendUrl = this.apiDomain + api.url;
         api.submiting = true;
         switch (api.method.toUpperCase()){
