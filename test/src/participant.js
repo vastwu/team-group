@@ -18,7 +18,7 @@ define(function (require, exports, module) {
     url: '/group/41/participant/16',
     method: 'GET'
   }, {
-    title: '查询单个拼团下的所有参与者(订单)',
+    title: '查询某团下的参与者',
     url: '/group/41/participant',
     method: 'GET',
     comments: [

@@ -23,6 +23,30 @@ input[type="text"]{
   outline: none;
   width: 80%;
 }
+.menu{
+  position: fixed;
+  left: 10px;
+  top: 10px;
+  border-radius: 4px;
+  padding: 20px 15px 20px 10px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+}
+.menu ul{
+  margin: 0;
+  padding: 0 0 0 25px;
+}
+.menu ul li{
+  margin: 8px 0;
+}
+
+.menu ul a{
+  color: white;
+  font-size: 14px;
+  text-decoration: none;
+  line-height: 22px;
+}
+
 i.expand-flag{
   font-style: normal;
   margin-right: 5px;
@@ -32,7 +56,7 @@ i.expand-flag{
 }
 #app{
   display: none;
-  width: 80%;
+  width: 70%;
   margin: 30px auto;
 }
 .api-list{

@@ -14,6 +14,18 @@
   </head>  
   <body>
     <div id="app">
+      <div class="menu">
+        <ul>
+          <li v-for="item in interfaces">
+            <b>{{item.title}}</b> 
+            <ul>
+              <li v-for="api in item.interfaces" >
+                <a :href="'#' + api.title">{{api.title}}</a>
+              </li>
+            </ul>
+          </li>
+        </ul> 
+      </div>
       <div>
         <label>API domain:</label> 
         <input type="text" v-model="apiDomain"/>
@@ -23,7 +35,7 @@
           <i class="expand-flag">{{item.expand ? '-' : '+'}}</i>{{item.title}}
         </h2>
         <div class="api-list" v-for="api in item.interfaces" v-show="item.expand">
-          <h3 class="pointer" @click="toggle(api)">
+          <h3 class="pointer" @click="toggle(api)" :id="api.title">
             <i class="expand-flag">{{api.expand ? '-' : '+'}}</i>{{api.title}}
           </h3>
           <div class="api-block" v-show="api.expand">
