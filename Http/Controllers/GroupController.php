@@ -75,10 +75,69 @@ class GroupController extends Controller
     }
   }
 
+  // 根据创建者查询
+  public function getGroupsByCreator($creator, $pagenumber = 1, $pagesize = null) {
+    #$pagenumber = $request->has('pagenumber') ? $request->input('pagenumber') : 1;
+    #$pagesize = $request->has('pagesize') ? $request->input('pagesize') : null;
+    $query = DB::table('group')
+      ->where('userid', $creator)
+      ->orderBy('createtime', 'desc');
+    if ($pagesize !== null) {
+      # 有分页
+      $query->skip($pagesize * ($pagenumber - 1));
+      $query->take($pagesize);
+    }
+    $groups = $query->get();
+
+    foreach($groups as $index => $group) {
+      $groups[$index] = $this->decodeGroup($group);
+    }
+    return $groups;
+  }
+  public function getGroupsByParticipant($participant, $pagenumber = 1, $pagesize = null) {
+    // 根据参与者获取团信息
+    #$pagenumber = $request->has('pagenumber') ? $request->input('pagenumber') : 1;
+    #$pagesize = $request->has('pagesize') ? $request->input('pagesize') : null;
+
+    $sql = "
+      select * from
+        (select * from `group`) A
+        right join 
+        (select `groupid`, createtime as jointime, custom_values, commodities as participant_commodities from participant where uid = ?) B
+        on A.id = B.groupid
+        order by jointime desc
+    ";
+    if ($pagesize !== null) {
+      # 有分页
+      $skip = $pagesize * ($pagenumber - 1);
+      $take = $pagesize;
+      $sql .= " limit $skip, $take";
+    }
+    $groups = DB::select($sql, [
+      $participant
+    ]);
+    $total_price = 0;
+    foreach($groups as $index => $group) {
+      $group->custom_values = json_decode($group->custom_values);
+      $participant_commodities = json_decode($group->participant_commodities);
+      unset($group->participant_commodities);
+      $parsed = $this->decodeGroup($group);
+      foreach($parsed['commodities'] as $i => $item) {
+        $item->count = $participant_commodities[$i];
+        $total_price += $item->count * $item->price;
+      }
+      $parsed['total_price'] = $total_price;
+      $groups[$index] = $parsed;
+    }
+    return $groups;
+    #return $this->json(0, $groups);
+  }
+
   // query
   public function index(Request $request)
   {
     $err = $this->validator($request->all(), [
+      'type' => 'required|in:1,2',
       'pagenumber' => 'integer|min:0',
       'pagesize' => 'integer|min:0',
     ]);
@@ -86,7 +145,18 @@ class GroupController extends Controller
     if ($err !== null) {
       return $this->json(-1, $err);
     }
+    $pagenumber = $request->has('pagenumber') ? $request->input('pagenumber') : $request->input('pagenumber');
+    $pagesize = $request->has('pagesize') ? $request->input('pagesize') : null;
 
+    $uid = $request->get('TOKEN_UID');
+    if ($request->input('type') == '1') {
+      $groups = $this->getGroupsByCreator($uid, $pagenumber, $pagesize);
+    } else {
+      $groups = $this->getGroupsByParticipant($uid, $pagenumber, $pagesize);
+    }
+    return $this->json(0, $groups);
+
+    /*
     if ($request->has('creator')) {
       // 根据创建者查询
       $pagenumber = $request->has('pagenumber') ? $request->input('pagenumber') : 1;
@@ -143,6 +213,7 @@ class GroupController extends Controller
       }
       return $this->json(0, $groups);
     }
+     */
     return response()->json([]);
   }
 
@@ -174,8 +245,36 @@ class GroupController extends Controller
       $p->custom_values = json_decode($p->custom_values);
     }
     $group['participant'] = $participants;
-    #$group['xxx'] = $request->get('TOKEN_UID');
     return $this->json(0, $group);
+  }
 
+  public function update (Request $request, $id)
+  {
+    if (!$request->get('IS_ADMIN')) {
+      return $this->json(500);
+    }
+    $result = DB::table('group')
+      ->where('id', $id)
+      ->update(['status' => $request->input('status')]);
+    if ($result === 0) {
+      return $this->json(11);
+    } else {
+      return $this->json(0, $result);
+    }
+  }
+  // 删除拼团
+  public function destroy(Request $request, $id)
+  {
+    if (!$request->get('IS_ADMIN')) {
+      return $this->json(500);
+    }
+    $result = DB::table('group')
+      ->where('id', $id)
+      ->delete();
+    if ($result === 0) {
+      return $this->json(11);
+    } else {
+      return $this->json(0, $result);
+    }
   }
 }

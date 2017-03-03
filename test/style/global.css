@@ -57,12 +57,16 @@ i.expand-flag{
 #app{
   display: none;
   width: 70%;
-  margin: 30px auto;
+  margin: 30px 0 30px 20%;
 }
 .api-list{
   margin-left: 20px;
   padding-left: 50px;
   border-left: 5px solid #aaa;
+}
+
+.api-list .admin{
+  color: red;
 }
 .api-block{
   margin-left: 20px;

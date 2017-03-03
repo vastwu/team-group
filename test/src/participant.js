@@ -14,7 +14,7 @@ define(function (require, exports, module) {
       commodities: [util.random(4, 10), util.random(1, 6)]
     }
   }, {
-    title: '获取订单详情',
+    title: '获取参加(订单)详情',
     url: '/group/41/participant/16',
     method: 'GET'
   }, {
@@ -26,11 +26,13 @@ define(function (require, exports, module) {
       'pagenumber: 分页页号，从1开始，查询页数越界时，result = []'
     ]
   }, {
-    title: '删除拼团订单',
+    title: '退出拼团（删除订单）',
+    admin: true,
     url: '/group/41/participant/16',
     method: 'DELETE',
     comments: [
-      '仅用于方便调试(单个用户只能参与某个拼团一次,groupid + uid 唯一)，目前需求中不涉及退出'
+      '该行为会彻底删除数据库中的数据, 并从所属团中减去参与人数和金额',
+      '仅用于方便调试(单个用户只能参与某个拼团一次,groupid + uid 唯一)，目前需求中不涉及退出',
     ]
   }];
 

@@ -8,7 +8,8 @@ class Error
 {
     const rulsMessage = [
       'required' => ':attribute 字段缺失',
-      'integer' => ':attribute 必须为整数'
+      'integer' => ':attribute 必须为整数',
+      'in' => ':attribute 值无效'
     ];
 
     const reason = [
@@ -21,9 +22,12 @@ class Error
       '15' => '商品数量不匹配',
       '16' => '参与失败',
       '17' => '参与订单不存在',
+      '18' => '拼团状态异常',
       // 通用异常
       '400' => '用户信息缺失',
-      '401' => '用户信息非法'
+      '401' => '用户信息非法',
+      // 特殊异常
+      '500' => '无权限操作'
     ];
 
 }

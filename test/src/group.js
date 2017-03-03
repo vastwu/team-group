@@ -31,27 +31,57 @@ define(function (require, exports, module) {
       'tips: 该接口可以通过传participant_limit=5，来检测是否有4+ 个用户，需求只展示4个，如果返回5个表示实际数量大于4，可以显示...样式'
     ]
   }, {
-    title: '根据创建者查询拼团信息',
-    url: '/group?creator=1234566&pagesize=1&pagenumber=1',
+    title: '查询拼团信息(by 用户创建)',
+    url: '/group?type=1&pagesize=1&pagenumber=1',
     method: 'GET',
     comments: [
       'query.pagesize: 单页数量，默认值返回所有, 不分页',
       'query.pagenumber: 分页页号，从1开始，查询页数越界时，result = []',
-      'query.creator: 根据创建者uid查询',
     ]
   }, {
-    title: '根据参与者查询拼团信息',
-    url: '/group?participant=21&pagesize=1&pagenumber=1',
+    title: '查询拼团信息(by 用户参与)',
+    url: '/group?type=2&pagesize=1&pagenumber=1',
     method: 'GET',
     comments: [
       'query.pagesize: 单页数量，默认值返回所有, 不分页',
       'query.pagenumber: 分页页号，从1开始，查询页数越界时，result = []',
-      'query.participant: 根据参与者uid查询',
       '相比常规的拼团数据，该接口会额外返回一些参与者订单相关信息',
       'group.jointime: 参与时间, 排序和分页会依照该时间倒叙排列',
       'group.custom_values: 参与者填写的字段值, 此处因涉及顺序问题，没有和value合并,展示时需要协同custom_fields',
       'group.commodities.*.count: 参与者选择的商品数量',
       'grou.total_price: 商品总价'
+    ]
+  }, {
+    title: '查询拼团信息(by admin)',
+    url: '/group?type=1&pagesize=1&pagenumber=1',
+    admin: true,
+    method: 'GET',
+    comments: [
+      'TODO',
+      '该接口用于支持任意形式的查询，仅用于管理后台',
+      'query.type: 除支持默认的1，2外，还支持3，任意query方式',
+      'query.pagesize: 单页数量，默认值返回所有, 不分页',
+      'query.pagenumber: 分页页号，从1开始，查询页数越界时，result = []',
+    ]
+  }, {
+    title: '更新拼团状态(审核)',
+    url: '/group/41',
+    admin: true,
+    method: 'PUT',
+    body: {
+      'status': -1
+    },
+    comments: [
+      '更新拼团状态，用于审核后台'
+    ]
+  }, {
+    title: '删除拼团',
+    url: '/group/41',
+    admin: true,
+    method: 'DELETE',
+    comments: [
+      '该行为会彻底删除数据库中的数据',
+      '仅用于方便调试，目前需求中不涉及删除',
     ]
   }];
 

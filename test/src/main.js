@@ -5,11 +5,13 @@ define(function (require, exports, module) {
   var GroupApi = require('src/group');
   var UserApi = require('src/user');
   var ParticipantApi = require('src/participant');
+  var util = require('src/util');
 
   Vue.use(VueResource);
 
 
   var EXPAND_ALL = true;
+  var ADMIN_TOKEN = util.getAdminToken();
 
   var interfaces = [];
   interfaces.push(ParticipantApi);
@@ -18,7 +20,9 @@ define(function (require, exports, module) {
 
   Vue.http.interceptors.push( function(request, next){
     var url = request.url;
-    request.url = url + (url.indexOf('?') > -1 ? '&' : '?') + 'token=' + this.userToken;
+    if (url.indexOf('token') === -1) {
+      request.url = url + (url.indexOf('?') > -1 ? '&' : '?') + 'token=' + this.userToken;
+    }
     next();
   })
 
@@ -72,9 +76,6 @@ define(function (require, exports, module) {
       }
     },
     methods: {
-      uploadFileChange: function () {
-
-      },
       toggleAll: function (expand) {
         this.interfaces.forEach(function (item) {
           item.expand = expand;
@@ -92,9 +93,15 @@ define(function (require, exports, module) {
         }
         var sendUrl = this.apiDomain + api.url;
         api.submiting = true;
+        if (api.admin) {
+          sendUrl = sendUrl + (sendUrl.indexOf('?') > -1 ? '&' : '?') + 'token=' + ADMIN_TOKEN;
+        }
         switch (api.method.toUpperCase()){
           case 'POST':
             this.$http.post(sendUrl, api.body).then(getSuccessHandler(api), getErrorHandler(api))
+            break;
+          case 'PUT':
+            this.$http.put(sendUrl, api.body).then(getSuccessHandler(api), getErrorHandler(api))
             break;
           case 'DELETE':
             this.$http.delete(sendUrl).then(getSuccessHandler(api), getErrorHandler(api))

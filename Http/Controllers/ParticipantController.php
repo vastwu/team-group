@@ -69,20 +69,22 @@ class ParticipantController extends Controller
     // 是否有效
     $groups = DB::table('group')
       ->where('id', $groupid)
-      ->where('status', '>=',  0)
       ->get();
     if (!isset($groups[0])) {
       // 不存在
       return $this->json(11);
     }
-
+    $joinGroup = $groups[0];
     // 是否过期
-    $finishtime = $groups[0]->finishtime;
+    $finishtime = $joinGroup->finishtime;
     if (time() * 1000 > $finishtime) {
       // 已过期
       return $this->json(12);
     }
-
+    // 状态是否正常
+    if ($joinGroup->status !== 0) {
+      return $this->json(18);
+    }
     // 是否已参加过
     $joined = DB::table('participant')
       ->where([
@@ -95,7 +97,6 @@ class ParticipantController extends Controller
       return $this->json(13);
     }
 
-    $joinGroup = $groups[0];
     $customFields = json_decode($joinGroup->custom_fields, true);
     $customValues = [];
     $customFieldsCount = count($customFields);
@@ -157,8 +158,12 @@ class ParticipantController extends Controller
   }
 
   // 移除参团订单
-  public function destroy($groupid, $id)
+  public function destroy(Request $request, $groupid, $id)
   {
+    if (!$request->get('IS_ADMIN')) {
+      return $this->json(500);
+    }
+
     // 拼团是否存在
     $participant = DB::table('participant')
       ->where('id', $id)
