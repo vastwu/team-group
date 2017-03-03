@@ -1,5 +1,6 @@
 <html>
   <head>
+    <meta charset="utf-8" />
     <title>Test</title>
     <link href="style/global.css"  type="text/css" rel="stylesheet" />
     <script>
@@ -30,7 +31,11 @@
       </div>
       <div>
         <label>API domain:</label> 
-        <input type="text" v-model="apiDomain"/>
+        <input type="text" v-model="apiDomain" placeholder="api domain"/>
+      </div>
+      <div>
+        <label>user token:</label> 
+        <input type="text" v-model="userToken" placeholder="user token"/>
       </div>
 
       <div class="restful-list">

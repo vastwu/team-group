@@ -12,6 +12,7 @@ class UploadController extends Controller
   public function __construct()
   {
     $this->distFileDir = public_path('uploads');
+    $this->middleware('auth');
   }
   public function store (Request $request) 
   {

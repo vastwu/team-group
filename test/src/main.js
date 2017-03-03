@@ -16,6 +16,11 @@ define(function (require, exports, module) {
   interfaces.push(UserApi);
   interfaces.push(GroupApi);
 
+  Vue.http.interceptors.push( function(request, next){
+    var url = request.url;
+    request.url = url + (url.indexOf('?') > -1 ? '&' : '?') + 'token=' + this.userToken;
+    next();
+  })
 
   var getSuccessHandler = function (api) {
     return function (response) {
@@ -62,6 +67,7 @@ define(function (require, exports, module) {
       });
       return {
         apiDomain: 'http://laravel.app',
+        userToken: '8af033b658d7a66666370620b7c3b80b',
         interfaces: vm
       }
     },

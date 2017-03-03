@@ -15,6 +15,7 @@ class ParticipantController extends Controller
 {
   public function __construct()
   {
+    $this->middleware('auth');
     $this->middleware('crossRequest');
   }
 
@@ -65,12 +66,6 @@ class ParticipantController extends Controller
     #var_dump($request->cookie('aaa'));
     #return response("")->withCookie('aaa', 'bbb');
 
-    $err = $this->validator($request->all(), [
-      'uid' => 'required'
-    ]);
-    if ($err !== null) {
-      return $this->json(-1, $err);
-    }
     // 是否有效
     $groups = DB::table('group')
       ->where('id', $groupid)
@@ -92,7 +87,7 @@ class ParticipantController extends Controller
     $joined = DB::table('participant')
       ->where([
         'groupid' => $groupid,
-        'uid' => $request->input('uid')
+        'uid' => $request->get('TOKEN_UID')
       ])
       ->get();
     if (isset($joined[0])) {
@@ -120,7 +115,7 @@ class ParticipantController extends Controller
     }
 
     $participant = [
-      'uid' => $request->input('uid'),
+      'uid' => $request->get('TOKEN_UID'),
       'createtime' => time() * 1000,
       'groupid' => $groupid,
       'commodities' => json_encode($commodities),

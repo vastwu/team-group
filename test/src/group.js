@@ -7,7 +7,6 @@ define(function (require, exports, module) {
     method: 'POST',
     body: {
       title: '创建的标题' ,
-      userid: '1234566',
       limit_amount: 20003,
       limit_users: 30,
       finishtime: Date.now() + 24 * 3600,

@@ -7,14 +7,12 @@ use Illuminate\Http\Response;
 
 use DB;
 use App\Http\Requests;
-/*
- * TODO
- * 需要整合参团信息
- * */
+
 class GroupController extends Controller
 {
   public function __construct()
   {
+    $this->middleware('auth');
     $this->middleware('crossRequest');
   }
   public function decodeGroup ($group)
@@ -25,8 +23,9 @@ class GroupController extends Controller
     $group['commodities'] = json_decode($group['commodities']);
     // 自定义字段
     $group['custom_fields'] = json_decode($group['custom_fields']);
-    if ($group['finishtime'] <= time() * 1000 && $group['status'] === 0) {
-      // 已过期
+    if ($group['status'] === 0 && $group['finishtime'] <= time() * 1000) {
+      // 只有正常状态的才能根据时间标记为已过期
+      // 如果非正常状态的则显示被封禁的理由之类的
       $group['status'] = 1;
     }
     return $group;
@@ -37,7 +36,6 @@ class GroupController extends Controller
   {
     $err = $this->validator($request->all(), [
       'title' => 'required',
-      'userid' => 'required',
       'limit_amount' => 'min:0',
       'limit_users' => 'min:0',
       'finishtime' => 'required',
@@ -56,7 +54,7 @@ class GroupController extends Controller
 
     $gid = DB::table('group')->insertGetId([
       'title' => $params['title'],
-      'userid' => $params['userid'],
+      'userid' => $request->get('TOKEN_UID'),
       'limit_amount' => $params['limit_amount'],
       'limit_users' => $params['limit_users'],
       'total_amount' => 0,
@@ -70,7 +68,7 @@ class GroupController extends Controller
       'custom_fields' => json_encode($params['custom_fields']),
       'status' => 0
     ]);
-    if ($uid) {
+    if ($gid) {
       return $this->json(0, [ 'id'=> $gid]);
     } else {
       return $this->json(-1, $result);
@@ -151,6 +149,13 @@ class GroupController extends Controller
   // get with index, get one
   public function show(Request $request, $id)
   {
+    $err = $this->validator($request->all(), [
+      'participant_limit' => 'integer|min:0'
+    ]);
+    if ($err !== null) {
+      return $this->json(-1, $err);
+    }
+
     $group = DB::table('group')->where('id', $id)->first();
     // stcClass -> array
     if (!$group) {
@@ -169,6 +174,7 @@ class GroupController extends Controller
       $p->custom_values = json_decode($p->custom_values);
     }
     $group['participant'] = $participants;
+    #$group['xxx'] = $request->get('TOKEN_UID');
     return $this->json(0, $group);
 
   }

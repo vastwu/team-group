@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 use DB;
+use Cookie;
 use App\Http\Requests;
 
 class UserController extends Controller
@@ -93,6 +94,7 @@ class UserController extends Controller
     }
     unset($user['session_key']);
     unset($user['openid']);
+    Cookie::queue("TOKEN", $user['token'], 3600);
     return $this->json(0, $user);
   }
 
