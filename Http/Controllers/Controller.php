@@ -15,7 +15,7 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     public function validator($inputs, $ruls) {
-      $validator = \Validator::make($inputs, $ruls, Error::rulsMessage);
+      $validator = \Validator::make($inputs, $ruls, Error::$rulsMessage);
       if ($validator->fails()) {
         $err = $validator->errors()->all();   
         return $err[0];
@@ -24,9 +24,10 @@ class Controller extends BaseController
     }
     public function json($errorCode, $result = "") {
       if ($errorCode !== 0) {
+        $reason = Error::$reason;
         return response()->json([
           'error' => $errorCode,
-          'reason' => array_key_exists($errorCode, Error::reason) ? Error::reason[$errorCode] : $result,
+          'reason' => array_key_exists($errorCode, $reason) ? $reason[$errorCode] : $result
         ]);
       } else {
         return response()->json([

@@ -6,13 +6,13 @@ namespace App\Http\Controllers;
 
 class Error
 {
-    const rulsMessage = [
+    public static $rulsMessage = [
       'required' => ':attribute 字段缺失',
       'integer' => ':attribute 必须为整数',
       'in' => ':attribute 值无效'
     ];
 
-    const reason = [
+    public static $reason = [
       // 参加
       '100' => '文件格式错误',
       '11' => '拼团不存在',

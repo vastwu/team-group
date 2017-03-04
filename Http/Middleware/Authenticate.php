@@ -20,10 +20,11 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
+      $reason = Error::$reason;
       if (!$request->has('token')) {
         return response()->json([
           'error' => '400',
-          'reason' => Error::reason['400']
+          'reason' => $reason['400']
         ]);
       }
       $token = $request->input('token');
@@ -35,7 +36,7 @@ class Authenticate
       if (!$user) {
         return response()->json([
           'error' => '401',
-          'reason' => Error::reason['401']
+          'reason' => $reason['401']
         ]);
       }
       $uid = $user->id;
