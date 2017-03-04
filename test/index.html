@@ -37,21 +37,33 @@
         <label>user token:</label> 
         <input type="text" v-model="userToken" placeholder="user token"/>
       </p>
+      <div class="comments" style="margin: 40px 0;">
+        <h2>整体概述</h2>
+        <ul class="comments-list">
+          <li v-for="comment in comments">{{comment}}</li>
+        </ul>
+      </div>
 
       <div class="restful-list">
         <h2 class="pointer">upload</h2>
         <div class="api-list" >
           <h3 class="pointer" id="anchor_upload">上传图片</h3>
           <div class="api-block">
-            <h4>地址</h5>
+            <h4>地址</h4>
             <p>
               <span class="method">【POST】</span>
-              <input type="text" value="/upload" />
+              <input type="text" :value="'/upload?token=' + userToken" />
             </p>
             <iframe style="display:none;" id="uploadIframe" name="uploadIframe" ></iframe>
-            <form target="uploadIframe" method="post" :action="apiDomain + '/upload'" enctype="multipart/form-data"  >
+            <form target="uploadIframe" method="post" :action="apiDomain + '/upload?iframe=1&token=' + userToken " enctype="multipart/form-data"  >
               <input name="file" type="file" onchange="this.parentNode.submit()" />
             </form>
+            <div class="upload-list">
+              <div class="upload-item" v-for="src in images">
+                <img :src="src" >
+                <div class="upload-url">{{src}}</div>
+              </div> 
+            </div>
           </div>
         </div>
       </div>
@@ -60,8 +72,8 @@
         <h2 class="pointer" @click="toggle(item)">
           <i class="expand-flag">{{item.expand ? '-' : '+'}}</i>{{item.title}}
         </h2>
-        <div v-if="item.comments" class="comments">
-          <h4>说明</h5>
+        <div v-if="item.comments" v-show="item.expand" class="comments">
+          <h5>说明</h5>
           <ul class="comments-list">
             <li v-for="comment in item.comments">{{comment}}</li>
           </ul>

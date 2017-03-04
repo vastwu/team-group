@@ -82,7 +82,7 @@ class ParticipantController extends Controller
       return $this->json(12);
     }
     // 状态是否正常
-    if ($joinGroup->status !== 0) {
+    if ($joinGroup->status != 0) {
       return $this->json(18);
     }
     // 是否已参加过

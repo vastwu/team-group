@@ -2,9 +2,9 @@ define(function (require, exports, module) {
   var Vue = require('vue');
   var VueResource = require('vue-resource');
 
-  var GroupApi = require('src/group');
-  var UserApi = require('src/user');
-  var ParticipantApi = require('src/participant');
+  var GroupApi = require('src/api/group');
+  var UserApi = require('src/api/user');
+  var ParticipantApi = require('src/api/participant');
   var util = require('src/util');
 
   Vue.use(VueResource);
@@ -70,9 +70,18 @@ define(function (require, exports, module) {
         return item;
       });
       return {
-        apiDomain: 'http://laravel.app',
+        images: [],
+        //apiDomain: 'http://laravel.app',
+        apiDomain: 'http://pintuan.yuanwei100.com',
         userToken: '8af033b658d7a66666370620b7c3b80b',
-        interfaces: vm
+        interfaces: vm,
+        comments: [
+          '接口尽可能遵循restful规范设计, 以url path表示资源',
+          '不信任接口输入的uid，所有涉及用户自身的行为，均以传递的token为准，例如创建拼团不需要传创建者uid，但必须带上token，创建者为token对应的用户',
+          '除user接口外，其余接口必须以 GET 参数形式传递token',
+          '标记为 admin 的接口，为后台需要用的或协助调试的，需要特殊的token，只有该token可以调用这些接口',
+          '每个接口示例的query参数可以直接修改，post参数需要在代码里修改，每类接口对应 src/ 目录下的文件'
+        ]
       }
     },
     methods: {
@@ -113,4 +122,11 @@ define(function (require, exports, module) {
       }
     }
   })
+
+  window.addEventListener('message',function(e){
+    var images = e.data;
+    appRoot.images = images;
+  }, false);
+
+
 })

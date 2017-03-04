@@ -104,12 +104,15 @@ class UserController extends Controller
     $user = $this->getUser('token', $id);
     unset($user['session_key']);
     unset($user['openid']);
-    //$c = new \Cookie('xxxx', 'vvvv');
-    //return response()->json($user)->withCookie($c);
     return $this->json(0, $user);
   }
-  public function destroy($id)
+  public function destroy(Request $request, $id)
   {
+    $token = $request->input('token');
+    if ($token !== '2cc4d8f81bfdbdda3193cd57d7ce34fc') {
+      // 非法admin
+      return $this->json(500);
+    }
     $result = DB::table('user')->where('id', $id)->delete();
     if ($result) {
       return $this->json(0, $result);

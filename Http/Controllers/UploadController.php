@@ -28,9 +28,15 @@ class UploadController extends Controller
       $file->move($this->distFileDir.'/images', $filename);
       $imagePath = '/uploads/images/'.$filename;
       $url = env('APP_URL').$imagePath;
-      $return[] = [ $url ];
+      $return[] = $url;
     }
-    return $this->json(0, $return);
+    if ($request->input('iframe') == 1) {
+      return response("<script>parent.postMessage && parent.postMessage(".json_encode($return).", '*');</script>");
+      //$this->json(0, $return);
+    } else {
+      // 常规返回
+      return $this->json(0, $return);
+    }
   }
 }
 
