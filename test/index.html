@@ -20,7 +20,9 @@
         <button type="button"  @click="toggleAll(0)" />全部收起</button>
         <ul>
           <li v-for="item in interfaces">
-            <b>{{item.title}}</b> 
+            <b>
+              <a :href="'#anchor_' + item.title">{{item.title}}</a>
+            </b> 
             <ul>
               <li v-for="api in item.interfaces" >
                 <a :href="'#anchor_' + api.title">{{api.title}}</a>
@@ -69,7 +71,7 @@
       </div>
 
       <div class="restful-list" v-for="item in interfaces">
-        <h2 class="pointer" @click="toggle(item)">
+        <h2 class="pointer" @click="toggle(item)" :id="'anchor_' + item.title">
           <i class="expand-flag">{{item.expand ? '-' : '+'}}</i>{{item.title}}
         </h2>
         <div v-if="item.comments" v-show="item.expand" class="comments">
