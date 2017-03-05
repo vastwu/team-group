@@ -1,0 +1,19 @@
+.group-detail{
+  width: 60%;
+  margin: 0 auto;
+}
+.group-detail .row{
+  overflow: hidden;
+  margin: 15px 0;
+}
+.group-detail .row label{
+  float: left;
+}
+.group-detail .row img{
+  max-width: 300px;
+  max-height: 200px;
+  margin: 10px;
+}
+.group-detail .row label + div{
+  margin-left: 100px;
+}

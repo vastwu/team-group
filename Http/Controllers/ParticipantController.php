@@ -36,8 +36,9 @@ class ParticipantController extends Controller
     $pagenumber = $request->has('pagenumber') ? $request->input('pagenumber') : 1;
     $pagesize = $request->has('pagesize') ? $request->input('pagesize') : null;
     $query = DB::table('participant')
-      ->where('groupid', $groupid)
-      ->orderBy('createtime', 'desc');
+      ->where('participant.groupid', $groupid)
+      ->leftJoin('user', 'participant.uid', '=', 'user.id')
+      ->orderBy('participant.createtime', 'desc');
     if ($pagesize !== null) {
       # 有分页
       $query->skip($pagesize * ($pagenumber - 1));

@@ -1,0 +1,112 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>拼团审核后台</title>
+    <link href="global.css"  type="text/css" rel="stylesheet" />
+    <link href="lib/element-ui/theme-default/index.css"  type="text/css" rel="stylesheet" />
+    <script>
+      window.require = {
+        baseUrl: './',
+        paths: {
+          'vue': 'lib/vue.min',
+          'vue-resource': 'lib/vue-resource.min',
+          'vue-router': 'lib/vue-router.min',
+          'ELEMENT': 'lib/element-ui/index'
+        }
+      }
+    </script> 
+  </head>  
+  <body>
+    <div id="app">
+      <div class="group-list">
+        <el-table :data="groups" style="width: 100%" @row-click="groupClick">
+          <el-table-column prop="id" label="编号" width="80"></el-table-column>
+          <el-table-column prop="createtime" label="创建时间"></el-table-column>
+          <el-table-column prop="title" label="活动标题"></el-table-column>
+          <el-table-column prop="user_name" label="创建者"></el-table-column>
+          <el-table-column prop="statusLabel" label="状态"></el-table-column>
+          <el-table-column prop="amount" label="开团金额"></el-table-column>
+          <el-table-column prop="users" label="开团人数"></el-table-column>
+        </el-table>
+      </div>
+
+      <el-dialog title="拼团详情" v-model="showGroupDetail" size="full" style="display:none;">
+        <div class="group-detail" v-if="groupDetail">
+          <div class="row">
+            <label>创建人</label>
+            <div>
+              <img :src="groupDetail.user_avatar" />
+              <div>{{groupDetail.user_name}}</div>
+            </div>
+          </div>
+          <div class="row">
+            <label>标题</label>
+            <div>{{groupDetail.title}}</div>
+          </div>
+          <div class="row">
+            <label>简介</label>
+            <div>{{groupDetail.summary}}</div>
+          </div>
+          <div class="row">
+            <label>联系方式</label>
+            <div>{{groupDetail.contact}}</div>
+          </div>
+          <div class="row">
+            <label>状态</label>
+            <div>{{groupDetail.statusLabel}}</div>
+          </div>
+          <div class="row">
+            <label>图片</label>
+            <div>
+              <a v-for="img in groupDetail.images" :href="img" target="_blank"><img :src="img" /></a>
+            </div>
+          </div>
+          <div class="row">
+            <label>创建时间</label>
+            <div>{{groupDetail.createtime}}</div>
+          </div>
+          <div class="row">
+            <label>结束时间</label>
+            <div>{{groupDetail.finishtime}}</div>
+          </div>
+          <div class="row">
+            <label>剩余时间</label>
+            <div>{{groupDetail.remaining}}</div>
+          </div>
+          <div class="row">
+            <label>开团金额</label>
+            <el-progress :percentage="groupDetail.per_amount"></el-progress>
+          </div>
+          <div class="row">
+            <label></label>
+            <div>{{groupDetail.amount}}</div>
+          </div>
+          <div class="row">
+            <label>开团人数</label>
+            <el-progress :percentage="groupDetail.per_users"></el-progress>
+          </div>
+          <div class="row">
+            <label></label>
+            <div>{{groupDetail.users}}</div>
+          </div>
+          <div class="row">
+            <label>商品数量</label>
+            <div>
+              <el-table :data="groupDetail.commodities">
+                <el-table-column prop="name" label="商品名" width="130" align="center"></el-table-column>
+                <el-table-column prop="count" label="数量" align="center"></el-table-column>
+                <el-table-column prop="price" label="价格" align="center"></el-table-column>
+              </el-table>
+            </div>
+          </div>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="showGroupDetail = false">取 消</el-button>
+          <el-button type="primary" @click="showGroupDetail = false">确 定</el-button>
+        </span>
+      </el-dialog>
+
+    </div>
+    <script src="./lib/require.js" data-main="src/main.js"></script>
+  </body>  
+</html>
