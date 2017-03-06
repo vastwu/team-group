@@ -95,6 +95,7 @@ class GroupController extends Controller
     return $groups;
   }
   // 追加某团的参与者信息
+  /*
   public function appendGroupParticipant ($group, $limit = 5) {
     $participants = DB::table('participant')
       ->where('groupid', $group->id)
@@ -108,6 +109,7 @@ class GroupController extends Controller
     $group['participant'] = $participants;
     return $groups;
   }
+   */
   public function getGroupsByParticipant($participant, $pagenumber = 1, $pagesize = null) {
     // 根据参与者获取团信息
     #$pagenumber = $request->has('pagenumber') ? $request->input('pagenumber') : 1;
@@ -127,6 +129,7 @@ class GroupController extends Controller
       $take = $pagesize;
       $sql .= " limit $skip, $take";
     }
+
     $groups = DB::select($sql, [
       $participant
     ]);
@@ -138,22 +141,42 @@ class GroupController extends Controller
     #return $this->json(0, $groups);
   }
   public function getGroupsByCustom($query, $pagenumber, $pagesize) {
-    $query = DB::table('group')
-      ->leftJoin('user', 'user.id', '=', 'group.userid')
-      ->orderBy('group.createtime', 'desc')
-      ->select('group.*', 'user.name as user_name', 'user.avatar as user_avatar');
+    $sql = DB::table('group')
+      ->leftJoin('user', 'user.id', '=', 'group.userid');
+
+    if (array_key_exists('order', $query) && $query['order']) {
+      $sql->orderBy('group.'.$query['order'], array_key_exists('desc', $query) ? 'desc': 'asc');
+    } else {
+      // default
+      $sql->orderBy('group.createtime', 'desc');
+    }
+    if (array_key_exists('id', $query) && $query['id']) {
+      $sql->where('group.id', $query['id']);
+    } else if (array_key_exists('title', $query) && $query['title']) {
+      $sql->where('group.title', 'like', '%'.$query['title'].'%');
+    } else {
+      # 上述精准查找均不成立时，才考虑时间因素
+      if (array_key_exists('createtime_start',$query) && array_key_exists('createtime_end', $query)) {
+        $sql->where('group.createtime', '>=', $query['createtime_start']);
+        $sql->where('group.createtime', '<=', $query['createtime_end']);
+      }
+    }
     
+    // 先拿个总数
+    $total = $sql->count();
+
     if ($pagesize !== null) {
       # 有分页
-      $query->skip($pagesize * ($pagenumber - 1));
-      $query->take($pagesize);
+      $sql->skip($pagesize * ($pagenumber - 1));
+      $sql->take($pagesize);
     }
-    $groups = $query->get();
+    $sql->select('group.*', 'user.name as user_name', 'user.avatar as user_avatar');
+    $groups = $sql->get();
 
     foreach($groups as $index => $group) {
       $groups[$index] = $this->decodeGroup($group);
     }
-    return $groups;
+    return ['groups' => $groups, 'total' => $total];
   }
 
   // query
@@ -178,7 +201,7 @@ class GroupController extends Controller
     } else if ($type == '2') {
       $groups = $this->getGroupsByParticipant($uid, $pagenumber, $pagesize);
     } else if ($type == '3' && $request->get('IS_ADMIN')) {
-      $groups = $this->getGroupsByCustom([], $pagenumber, $pagesize);
+      $groups = $this->getGroupsByCustom($request->all(), $pagenumber, $pagesize);
     }
     return $this->json(0, $groups);
   }
@@ -192,20 +215,6 @@ class GroupController extends Controller
     if ($err !== null) {
       return $this->json(-1, $err);
     }
-
-    /*
-    $sql = "
-      select A.*, B.name user_name, B.`avatar` user_avatar from (
-        select * from `group` where id = ?
-      ) A
-      left join `user` B
-      on `A`.userid = `B`.id
-    ";
-
-    $group = DB::select($sql, [
-      $id
-    ]);
-     */
 
     $groups = DB::table('group')
       ->leftJoin('user', 'user.id', '=', 'group.userid')
@@ -236,11 +245,18 @@ class GroupController extends Controller
 
       foreach($p->commodities as $i => $value) {
         $commodity = $group['commodities'][$i];
+        // 为group对象的商品数量求和
         if (isset($commodity->count)) {
           $commodity->count += $value;
         } else {
           $commodity->count = $value;
         }
+        // group对象的商品信息反填回订单中
+        $p->commodities[$i] = [
+          'name' => $commodity->name,
+          'price' => $commodity->price,
+          'count' => $value,
+        ];
       }
     }
 

@@ -15,6 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::resource('auditor', 'AuditorController');
 Route::resource('user', 'UserController');
 Route::resource('group', 'GroupController');
 Route::resource('upload', 'UploadController');

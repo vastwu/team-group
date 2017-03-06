@@ -1,5 +1,24 @@
+.danger-text{
+  color: #ff4949;
+}
+.danger-bg{
+  background-color: #ff4949;
+}
+
+.group-list .group-status--1 .status,
+.group-list .group-status--2 .status,
+.group-list .group-status--3 .status{
+  color: #ff4949;
+}
+.group-list .group-status-0 .status{
+  color: #13CE66;
+}
+.group-list .group-status-1 .status{
+  color: #F7BA2A;
+}
+
 .group-detail{
-  width: 60%;
+  width: 80%;
   margin: 0 auto;
 }
 .group-detail .row{
@@ -16,4 +35,15 @@
 }
 .group-detail .row label + div{
   margin-left: 100px;
+}
+
+.group-detail .row .commodity-row.header{
+  background-color:#eef1f6;
+  padding: 5px 0;
+}
+.group-detail .row .commodity-row span{
+  margin-right: 15px;
+  display: inline-block;
+  width: 20%;
+  text-align: center;
 }
