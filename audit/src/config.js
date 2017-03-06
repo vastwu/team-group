@@ -1,7 +1,7 @@
 define(function (require, exports, module) {
   module.exports = {
-    apiDomain: 'http://laravel.app',
-    //apiDomain: 'http://pintuan.yuanwei100.com',
+    //apiDomain: 'http://laravel.app',
+    apiDomain: 'http://pintuan.yuanwei100.com',
     rootToken: '2cc4d8f81bfdbdda3193cd57d7ce34fc',
     auditStatusOptions: [{
       'label': '正常',

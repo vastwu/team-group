@@ -9,7 +9,7 @@ define(function (require, exports, module) {
   Vue.use(ElementUI);
 
   var timeFilter = function (date) {
-    var d = new Date(date);
+    var d = new Date(date * 1);
     var fillZero = function (n) { return n > 9 ? n : '0' + n};
     return [d.getFullYear(), d.getMonth() + 1, d.getDate()].map(fillZero).join('-') +
                       ' ' +
@@ -66,7 +66,7 @@ define(function (require, exports, module) {
     },
     mounted: function () {
       this.$el.style.display = 'block';
-      var url = config.apiDomain + '/auditor';
+      var url = '/auditor';
       this.$http.get(url).then(function (response) {
         if (response.body.error === 0) {
           this.auditor = response.body.result;
@@ -255,7 +255,7 @@ define(function (require, exports, module) {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(function() {
-          var url = config.apiDomain + '/group/' + self.groupDetail.id;
+          var url = '/group/' + self.groupDetail.id;
           self.$http.put(url, { 'status': targetStatus}).then(function (response) {
             self.groupDetail.status = targetStatus;
             self.$message({
@@ -267,7 +267,7 @@ define(function (require, exports, module) {
         }).catch(function () {});
       },
       groupClick: function (row, event, colum) {
-        var url = config.apiDomain + '/group/' + row.id;
+        var url = '/group/' + row.id;
         this.groupDetailLoading = true;
         this.showGroupDetail = true;
         this.$http.get(url).then(function (response) {
@@ -292,7 +292,7 @@ define(function (require, exports, module) {
       },
       updateGroupList: function () {
         var query = this.getSearchQuery(true);
-        var url = config.apiDomain + '/group?type=3&' + query;
+        var url = '/group?type=3&' + query;
         this.groupListLoading = true;
         this.$http.get(url, query).then(function (response) {
           var result = response.body.result;

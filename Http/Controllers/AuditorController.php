@@ -30,7 +30,7 @@ class AuditorController extends Controller
         ->where('session_key', $session_key)
         ->first(); 
       if ($user && $session_key === md5(md5($user->account).md5($user->password)) ) {
-        $user->isAdmin = $user->level === 99 ;
+        $user->isAdmin = $user->level == 99;
         unset($user->password);
         unset($user->level);
         $user->rootToken = $this->rootToken;
@@ -62,7 +62,7 @@ class AuditorController extends Controller
           ->update(['session_key' => $session_key]);
         // 有效期24小时
         $user->rootToken = $this->rootToken;
-        $user->isAdmin = $user->level === 99 ;
+        $user->isAdmin = $user->level == 99;
         unset($user->level);
         return $this->json(0, $user)->withCookie('session_key', $session_key, 24 * 60);
       }
