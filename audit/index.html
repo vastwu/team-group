@@ -34,8 +34,14 @@
     </script>
 
     <div id="app" style="display: none;">
-      <div v-if="!auditor" is="user-component"></div>
-      <el-tabs v-if="auditor" v-model="currentTab" >
+      <div v-if="auditor === false" is="user-component"></div>
+
+      <el-menu v-if="auditor" theme="dark" class="el-menu-demo" mode="horizontal">
+        <el-menu-item index="1">拼团审核管理中心</el-menu-item>
+        <el-menu-item index="2" @click="logout">{{auditor.nickname}}（退出登录）</el-menu-item>
+      </el-menu>
+
+      <el-tabs v-if="auditor" v-model="currentTab" @tab-click="tabChange">
         <el-tab-pane label="拼团审核" name="groups">
           <h3>拼团审核</h3>
           <div class="search-form">
@@ -105,11 +111,67 @@
           </div>
         
         </el-tab-pane>
-        <el-tab-pane label="审核员管理" name="auditor">
-          <h3>审核员管理</h3>
-        
+        <el-tab-pane :label="auditor.isAdmin ? '审核员管理' : '不可用'" name="auditor" :disabled="auditor.isAdmin !== true">
+          <h3>审核员管理
+            <el-button type="text" @click="addNewAuditor">增加新账号</el-button>
+          </h3>
+          <el-table
+            :data="auditors"
+            style="width: 100%">
+            <el-table-column
+              prop="id"
+              label="编号"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="nickname"
+              label="昵称"
+              width="380">
+            </el-table-column>
+            <el-table-column
+              prop="account"
+              label="账号"
+              width="380">
+            </el-table-column>
+            <!--
+            <el-table-column label="账号状态">
+              <template scope="scope">
+                <el-switch
+                  v-model="scope.row.status"
+                  on-color="#13ce66"
+                  off-color="#ff4949">
+               </el-switch>
+              </template>
+            </el-table-column>
+            -->
+            <el-table-column label="操作">
+              <template scope="scope">
+                <el-button type="text" @click="resetPassword(scope.row.id, scope.row.account)">重设密码</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
         </el-tab-pane>
       </el-tabs>
+
+      <el-dialog title="添加新审核员" v-model="dialogNewAuditorVisible">
+        <el-form :model="newAuditorForm" label-width="120px" :rules="newAuditorFormRules" v-loading="auditorFormSubmiLoading">
+          <el-form-item label="账号名" prop="account">
+            <el-input v-model="newAuditorForm.account" auto-complete="off" placeholder="必填，登陆用"></el-input>
+          </el-form-item>
+          <el-form-item label="昵称">
+            <el-input v-model="newAuditorForm.nickname" auto-complete="off" placeholder="选填，默认同账号名"></el-input>
+          </el-form-item>
+          <el-form-item label="密码" prop="password">
+            <el-input v-model="newAuditorForm.password" auto-complete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="重复密码" prop="password_confirm">
+            <el-input v-model="newAuditorForm.password_confirm" auto-complete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="">
+            <el-button type="primary" @click="newAuditorSubmit">立即创建</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
 
       <el-dialog title="拼团详情" v-model="showGroupDetail" size="full" style="display:none;" v-loading.body="groupDetailLoading">
         <div class="group-detail" v-if="groupDetail">

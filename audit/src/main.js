@@ -66,12 +66,37 @@ define(function (require, exports, module) {
     },
     mounted: function () {
       this.$el.style.display = 'block';
-      this.updateGroupList()
+      var url = config.apiDomain + '/auditor';
+      this.$http.get(url).then(function (response) {
+        if (response.body.error === 0) {
+          this.auditor = response.body.result;
+          this.updateGroupList()
+        } else {
+          this.auditor = false;
+        }
+      })
     },
     data: function () {
       return {
-        auditor: null,
+        auditorFormSubmiLoading: false,
+        // 新增审核员dialog
+        dialogNewAuditorVisible: false,
+        newAuditorForm: {
+          account: '',
+          nickname: '',
+          password: '',
+          password_confirm: ''
+        },
+        newAuditorFormRules:{
+          account: [{required: true, message: '必须输入账号名', trigger: 'blur'}],
+          password: [{required: true, message: '必须输入密码', trigger: 'blur'}],
+          password_confirm: [{required: true, message: '必须重复确认密码', trigger: 'blur'}]
+        },
+        // 所有审核员
+        auditors: [],
         currentTab: 'groups',
+        // 当前登陆者
+        auditor: null,
         groupDetailLoading: false,
         groupListLoading: false,
         groupDetail: null,
@@ -113,6 +138,67 @@ define(function (require, exports, module) {
       }
     },
     methods: {
+      logout: function () {
+        this.$http.delete('/auditor/99').then(function () {
+          location.reload();
+        });
+      },
+      resetPassword: function (id, name) {
+        var self = this;
+        this.$prompt('请输入【' + name + '】的新密码', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        }).then(function (arg) {
+          var value = arg.value;
+          self.$http.put('/auditor/' + id, {password: value}).then(function (response) {
+            if (response.body.error !== 0) {
+              return self.$message.error(response.body.reason);
+            }
+            self.$message.success('修改成功');
+          })
+        }).catch(function(){});
+      },
+      newAuditorSubmit: function () {
+        var form = this.newAuditorForm;
+        if (!form.nickname) {
+          form.nickname = form.account;
+        }
+        if (form.password !== form.password_confirm) {
+          return this.$message.error('两次密码不一致');
+        }
+        var body = {
+          account: form.account,
+          password: form.password,
+          nickname: form.nickname
+        };
+        this.auditorFormSubmiLoading = true;
+        this.$http.post('/auditor', body).then(function (response) {
+          var body = response.body;
+          if (body.error !== 0) {
+            this.auditorFormSubmiLoading = false;
+            return this.$message.error(body.reason);
+          }
+          this.dialogNewAuditorVisible = false;
+          this.$message.success('创建成功!');
+          this.updateAuditors();
+        });
+      },
+      addNewAuditor: function () {
+        this.dialogNewAuditorVisible = true;
+      },
+      updateAuditors: function () {
+        this.$http.get('/auditor/query').then(function (response) {
+          var body = response.body;
+          if (body.error === 0) {
+            this.auditors = body.result;
+          }
+        });
+      },
+      tabChange:function (tab) {
+        if (tab.name === "auditor") {
+          this.updateAuditors();
+        }
+      },
       listPagenumberChange: function (current) {
         this.listPagenumber = current;
         this.updateGroupList();
