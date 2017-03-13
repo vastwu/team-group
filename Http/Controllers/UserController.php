@@ -56,7 +56,7 @@ class UserController extends Controller
         "openid" => "oNQkY0Vxlhxb0QmbQV9urcjGIhW0--++"
       ];
     } else {
-      $wechatResult = json_decode(file_get_contents($wechatApiUrl));
+      $wechatResult = json_decode(file_get_contents($wechatApiUrl), true);
     }
     if (isset($wechatResult['errcode'])) {
       return response()->json([
