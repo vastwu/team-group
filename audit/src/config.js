@@ -10,6 +10,9 @@ define(function (require, exports, module) {
       'label': '过期',
       'value': 1
     }, {
+      'label': '已结束',
+      'value': 2
+    }, {
       'label': '违法内容',
       'value': -1
     }, {
