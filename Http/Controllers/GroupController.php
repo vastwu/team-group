@@ -66,7 +66,8 @@ class GroupController extends Controller
       'contact' => $params['contact'],
       'commodities' => json_encode($params['commodities']),
       'custom_fields' => json_encode($params['custom_fields']),
-      'status' => 0
+      'status' => 0,
+      'share' => 0
     ]);
     if ($gid) {
       return $this->json(0, [ 'id'=> $gid]);
@@ -266,16 +267,52 @@ class GroupController extends Controller
 
   public function update (Request $request, $id)
   {
-    if (!$request->get('IS_ADMIN')) {
-      return $this->json(500);
-    }
-    $result = DB::table('group')
-      ->where('id', $id)
-      ->update(['status' => $request->input('status')]);
-    if ($result === 0) {
-      return $this->json(11);
-    } else {
+    $isAdmin = $request->get('IS_ADMIN');
+    $targetStatus = $request->input('status');
+    $share = $request->has('share');
+    if ($isAdmin) {
+      # 管理员，不限制status修改
+      $result = DB::table('group')
+        ->where('id', $id)
+        ->update(['status' => $targetStatus]);
+      if ($result === 0) {
+        return $this->json(11);
+      } else {
+        return $this->json(0, $result);
+      }
+    } else if ($targetStatus == 2) {
+      # 非管理员，只允许更新为取消状态
+      $uid = $request->get('TOKEN_UID');
+      $result = DB::table('group')
+        ->where('id', $id)
+        ->first();
+      if (!$result) {
+        return $this->json(11);
+      }
+      if ($result->userid != $uid) {
+        return $this->json(19);
+      }
+      if ($result->status != 1) {
+        return $this->json(20);
+      }
+      $result = DB::table('group')
+        ->where('id', $id)
+        ->update(['status' => $targetStatus]);
       return $this->json(0, $result);
+    } else if ($share) {
+      # 分享
+      $group = DB::table('group')
+        ->where('id', $id)
+        ->first();
+      if (!$group) {
+        return $this->json(11);
+      }
+      $result = DB::table('group')
+        ->where('id', $id)
+        ->update(['share' => $group->share + 1]);
+      return $this->json(0, ["share" => $group->share + 1]);
+    } else {
+      return $this->json(500);
     }
   }
   // 删除拼团

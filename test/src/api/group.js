@@ -64,6 +64,26 @@ define(function (require, exports, module) {
       'query.pagenumber: 分页页号，从1开始，查询页数越界时，result = []',
     ]
   }, {
+    title: '更新拼团状态(取消拼团)',
+    url: '/group/41',
+    method: 'PUT',
+    body: {
+      'status': 2
+    },
+    comments: [
+      '取消拼团'
+    ]
+  }, {
+    title: '更新拼团状态(分享记次)',
+    url: '/group/41',
+    method: 'PUT',
+    body: {
+      'share': 1
+    },
+    comments: [
+      '团分享次数加1， share的值没有意义，每次调用后均会加1，'
+    ]
+  }, {
     title: '更新拼团状态(审核)',
     url: '/group/41',
     admin: true,
