@@ -39,7 +39,6 @@ class GroupController extends Controller
       'limit_amount' => 'min:0',
       'limit_users' => 'min:0',
       'finishtime' => 'required',
-      'summary' => 'required',
       'contact' => 'required',
       'commodities' => 'required',
       'commodities.*.price' => 'required|integer|min:0',
@@ -49,19 +48,22 @@ class GroupController extends Controller
     if ($err !== null) {
       return $this->json(-1, $err);
     }
+    if (!$request->has('limit_amount') && !$request->has('limit_users')) {
+      return $this->json(21);
+    }
 
     $params = $request->all();
 
     $gid = DB::table('group')->insertGetId([
       'title' => $params['title'],
       'userid' => $request->get('TOKEN_UID'),
-      'limit_amount' => $params['limit_amount'],
-      'limit_users' => $params['limit_users'],
+      'limit_amount' => isset($params['limit_amount']) ? $params['limit_amount'] : 0,
+      'limit_users' => isset($params['limit_users']) ? $params['limit_users'] : 0,
       'total_amount' => 0,
       'total_users' => 0,
       'createtime' => time() * 1000,
       'finishtime' => $params['finishtime'],
-      'summary' => $params['summary'],
+      'summary' => isset($params['summary']) ? $params['summary'] : '',
       'images' => json_encode(isset($params['images']) ? $params['images'] : []),
       'contact' => $params['contact'],
       'commodities' => json_encode($params['commodities']),
