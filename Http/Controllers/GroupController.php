@@ -66,7 +66,7 @@ class GroupController extends Controller
       'images' => json_encode(isset($params['images']) ? $params['images'] : []),
       'contact' => isset($params['contact']) ? $params['contact'] : '',
       'commodities' => json_encode($params['commodities']),
-      'custom_fields' => json_encode($params['custom_fields']),
+      'custom_fields' => json_encode(isset($params['custom_fields']) ? $params['custom_fields'] : []),
       'status' => 0,
       'share' => 0
     ]);
