@@ -262,6 +262,12 @@ class GroupController extends Controller
     }
 
     $group['participant'] = $participants;
+    // 对于无订单的商品，count补0
+    foreach($group['commodities'] as $commodity) {
+      if (!array_key_exists('count', $commodity)) {
+        $commodity->count = 0; 
+      }
+    }
     return $this->json(0, $group);
   }
 
