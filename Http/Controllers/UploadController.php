@@ -21,9 +21,9 @@ class UploadController extends Controller
     foreach($files as $file){
       $mimeTye = $file->getMimeType();
       $ext = $file->getClientOriginalExtension();
-      if($mimeTye != 'image/jpeg'){
-        return $this->json(100);
-      }
+      #if($mimeTye != 'image/jpeg'){
+      #  return $this->json(-1, $ext);
+      #}
       $filename = date('Ymdhis').md5(rand(1,500)).'.'.$ext;
       $file->move($this->distFileDir.'/images', $filename);
       $imagePath = '/uploads/images/'.$filename;
