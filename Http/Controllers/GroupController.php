@@ -39,7 +39,6 @@ class GroupController extends Controller
       'limit_amount' => 'min:0',
       'limit_users' => 'min:0',
       'finishtime' => 'required',
-      'contact' => 'required',
       'commodities' => 'required',
       'commodities.*.price' => 'required|integer|min:0',
       'custom_fields' => 'required'
@@ -65,7 +64,7 @@ class GroupController extends Controller
       'finishtime' => $params['finishtime'],
       'summary' => isset($params['summary']) ? $params['summary'] : '',
       'images' => json_encode(isset($params['images']) ? $params['images'] : []),
-      'contact' => $params['contact'],
+      'contact' => isset($params['contact']) ? $params['contact'] : '',
       'commodities' => json_encode($params['commodities']),
       'custom_fields' => json_encode($params['custom_fields']),
       'status' => 0,
