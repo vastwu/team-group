@@ -51,7 +51,10 @@ class GroupController extends Controller
     }
 
     $params = $request->all();
-
+    $createtime = time() * 1000;
+    if ($params['finishtime'] <= $createtime) {
+      return $this->json(22);
+    }
     $gid = DB::table('group')->insertGetId([
       'title' => $params['title'],
       'userid' => $request->get('TOKEN_UID'),
@@ -59,7 +62,7 @@ class GroupController extends Controller
       'limit_users' => isset($params['limit_users']) ? $params['limit_users'] : 0,
       'total_amount' => 0,
       'total_users' => 0,
-      'createtime' => time() * 1000,
+      'createtime' => $createtime,
       'finishtime' => $params['finishtime'],
       'summary' => isset($params['summary']) ? $params['summary'] : '',
       'images' => json_encode(isset($params['images']) ? $params['images'] : []),
