@@ -40,8 +40,7 @@ class GroupController extends Controller
       'limit_users' => 'min:0',
       'finishtime' => 'required',
       'commodities' => 'required',
-      'commodities.*.price' => 'required|integer|min:0',
-      'custom_fields' => 'required'
+      'commodities.*.price' => 'required|integer|min:0'
     ]);
 
     if ($err !== null) {
