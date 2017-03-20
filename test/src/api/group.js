@@ -28,6 +28,7 @@ define(function (require, exports, module) {
     method: 'GET',
     comments: [
       'query.participant_limit: 获取几个参与者的信息, 默认获取 4 个',
+      'response.current_user_participant: 当前用户在该团中的订单状态，如果未参加则为null',
       'tips: 该接口可以通过传participant_limit=5，来检测是否有4+ 个用户，需求只展示4个，如果返回5个表示实际数量大于4，可以显示...样式'
     ]
   }, {

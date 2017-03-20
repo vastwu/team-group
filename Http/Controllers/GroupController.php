@@ -180,6 +180,28 @@ class GroupController extends Controller
     return ['groups' => $groups, 'total' => $total];
   }
 
+  // 订单信息和团信息合并
+  public function mergeParticipantWithGroup (& $group, & $p) {
+    $p->custom_fields = json_decode($p->custom_fields);
+    $p->custom_values = json_decode($p->custom_values);
+    $p->commodities = json_decode($p->commodities);
+
+    foreach($p->commodities as $i => $value) {
+      $commodity = $group['commodities'][$i];
+      // 为group对象的商品数量求和
+      if (isset($commodity->count)) {
+        $commodity->count += $value;
+      } else {
+        $commodity->count = $value;
+      }
+      // group对象的商品信息反填回订单中
+      $p->commodities[$i] = [
+        'name' => $commodity->name,
+        'price' => $commodity->price,
+        'count' => $value,
+      ];
+    }
+  }
   // query
   public function index(Request $request)
   {
@@ -240,25 +262,7 @@ class GroupController extends Controller
       ->get();
 
     foreach($participants as $p) {
-      $p->custom_fields = json_decode($p->custom_fields);
-      $p->custom_values = json_decode($p->custom_values);
-      $p->commodities = json_decode($p->commodities);
-
-      foreach($p->commodities as $i => $value) {
-        $commodity = $group['commodities'][$i];
-        // 为group对象的商品数量求和
-        if (isset($commodity->count)) {
-          $commodity->count += $value;
-        } else {
-          $commodity->count = $value;
-        }
-        // group对象的商品信息反填回订单中
-        $p->commodities[$i] = [
-          'name' => $commodity->name,
-          'price' => $commodity->price,
-          'count' => $value,
-        ];
-      }
+      $this->mergeParticipantWithGroup($group, $p);
     }
 
     $group['participant'] = $participants;
@@ -268,6 +272,18 @@ class GroupController extends Controller
         $commodity->count = 0; 
       }
     }
+
+    # 获取当前用户在该团的订单
+    $uid = $request->get('TOKEN_UID');
+    $currentUserParticipant = DB::table('participant')
+      ->where('groupid', $id)
+      ->where('uid', $uid)
+      ->first();
+
+    if ($currentUserParticipant) {
+      $this->mergeParticipantWithGroup($group, $currentUserParticipant);
+    }
+    $group['current_user_participant'] = $currentUserParticipant;
     return $this->json(0, $group);
   }
 
