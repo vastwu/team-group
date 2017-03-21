@@ -29,6 +29,30 @@ class ParticipantController extends Controller
     }
     return $total_amount;
   }
+  // 根据商品价格和购买数量计算总价
+  public function countAmountByCommodity($group, $commoditiesCount, $join = true)
+  {
+    $joinGroupcommodities = json_decode($group->commodities, true);
+    // 计算总金额
+    $total_amount = 0;
+    foreach($joinGroupcommodities as $index => $commodity) {
+      $count = $commoditiesCount[$index];
+      if ($join) {
+        $total_amount += $commodity['price'] * $count;
+        $joinGroupcommodities[$index]['count'] += $count;
+      } else {
+        $total_amount -= $commodity['price'] * $count;
+        $joinGroupcommodities[$index]['count'] -= $count;
+      }
+    }
+    $group->commodities = json_encode($joinGroupcommodities);
+    if ($join) {
+      $group->total_amount += $total_amount;
+    } else {
+      $group->total_amount -= $total_amount;
+    }
+    return $group;
+  }
   // query
   public function index(Request $request, $groupid)
   {
@@ -129,8 +153,9 @@ class ParticipantController extends Controller
     // 人数+1
     $joinGroup->total_users++;
     // 计算总金额
-    $total_amount = $this->sumAmountByCommodity($joinGroupcommodities, $commodities);
-    $joinGroup->total_amount += $total_amount;
+    #$total_amount = $this->sumAmountByCommodity($joinGroupcommodities, $commodities);
+    #$joinGroup->total_amount += $total_amount;
+    $joinGroup = $this->countAmountByCommodity($joinGroup, $commodities);
 
     $error = null;
     try{
@@ -188,7 +213,7 @@ class ParticipantController extends Controller
     // 更新团金额
     $joinGroupcommodities = json_decode($group->commodities, true);
     $commodities = json_decode($participant->commodities, true);
-    $group->total_amount -= $this->sumAmountByCommodity($joinGroupcommodities, $commodities);
+    $group = $this->countAmountByCommodity($group, $commodities, false);
 
     $error = null;
     // 移除订单

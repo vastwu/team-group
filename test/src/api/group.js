@@ -65,14 +65,14 @@ define(function (require, exports, module) {
       'query.pagenumber: 分页页号，从1开始，查询页数越界时，result = []',
     ]
   }, {
-    title: '更新拼团状态(取消拼团)',
+    title: '更新拼团状态(提前结束拼团)',
     url: '/group/41',
     method: 'PUT',
     body: {
-      'status': 2
+      'finishtime': 1
     },
     comments: [
-      '取消拼团'
+      '提前结束拼团，如果满足拼团条件，则会变更为已截团'
     ]
   }, {
     title: '更新拼团状态(分享记次)',
@@ -112,7 +112,8 @@ define(function (require, exports, module) {
     comments: [
       'group.status: 状态说明, 小于0的均为审核后台操作的非常规状态',
       '   0: 正常',
-      '   1: 过期',
+      '   1: 已结束',
+      '   2: 已截团',
       '   -1: 违法内容',
       '   -2: 低俗色情',
       '   -3: 其他原因'
