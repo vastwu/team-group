@@ -110,9 +110,6 @@ class GroupController extends Controller
   }
   public function getGroupsByParticipant($participant, $pagenumber = 1, $pagesize = null) {
     // 根据参与者获取团信息
-    #$pagenumber = $request->has('pagenumber') ? $request->input('pagenumber') : 1;
-    #$pagesize = $request->has('pagesize') ? $request->input('pagesize') : null;
-
     $sql = "
       select * from
         (select * from `group`) A
@@ -182,16 +179,6 @@ class GroupController extends Controller
     $p->custom_fields = json_decode($p->custom_fields);
     $p->custom_values = json_decode($p->custom_values);
     $p->commodities = json_decode($p->commodities);
-
-    foreach($p->commodities as $i => $value) {
-      // group对象的商品信息反填回订单中
-      $commodity = $group['commodities'][$i];
-      $p->commodities[$i] = [
-        'name' => $commodity->name,
-        'price' => $commodity->price,
-        'count' => $value,
-      ];
-    }
   }
   // query
   public function index(Request $request)
