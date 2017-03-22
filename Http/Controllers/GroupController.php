@@ -27,7 +27,7 @@ class GroupController extends Controller
       // 只有正常状态的才能根据时间标记为已过期
       // 如果非正常状态的则显示被封禁的理由之类的
       $group['status'] = 1;
-      if (($group['limit_amount'] > 0 && $group['total_amount'] >= $group['total_amount']) || ($group['limit_users'] > 0 && $group['total_users'] >= $group['total_users']) ) {
+      if (($group['limit_amount'] > 0 && $group['total_amount'] >= $group['limit_amount']) || ($group['limit_users'] > 0 && $group['total_users'] >= $group['limit_users']) ) {
         # 达到截图标准
         $group['status'] = 2;
       }
