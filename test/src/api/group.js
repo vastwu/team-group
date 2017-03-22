@@ -15,10 +15,10 @@ define(function (require, exports, module) {
       contact: '11111111111',
       commodities: [{
         name: '商品A',
-        price: util.random(100, 500)
+        price: util.random(100, 500, 2)
       }, {
         name: '商品B',
-        price: util.random(100, 500)
+        price: util.random(100, 500, 2)
       }],
       custom_fields: ['手机', '电话', '地址', '自定义']
     }

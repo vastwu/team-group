@@ -26,6 +26,7 @@ class ParticipantController extends Controller
     $pagenumber = $request->has('pagenumber') ? $request->input('pagenumber') : 1;
     $pagesize = $request->has('pagesize') ? $request->input('pagesize') : null;
     $query = DB::table('participant')
+      ->select('participant.*', 'user.name', 'user.avatar')
       ->where('participant.groupid', $groupid)
       ->leftJoin('user', 'participant.uid', '=', 'user.id')
       ->orderBy('participant.createtime', 'desc');
@@ -39,6 +40,7 @@ class ParticipantController extends Controller
       $item->custom_values = json_decode($item->custom_values, true);
       $item->custom_fields = json_decode($item->custom_fields, true);
       $item->commodities = json_decode($item->commodities, true);
+      $item->total_price *= 1;
     }
     return $this->json(0, $participants);
   }
@@ -56,6 +58,7 @@ class ParticipantController extends Controller
     $participant->custom_values = json_decode($participant->custom_values, true);
     $participant->custom_fields = json_decode($participant->custom_fields, true);
     $participant->commodities = json_decode($participant->commodities, true);
+    $participant->total_price *= 1;
     return $this->json(0, $participant);
   }
 

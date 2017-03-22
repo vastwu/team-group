@@ -9,7 +9,11 @@ define(function () {
       }
       var value = Math.random() * (max - min)  + min;
       if (integer) {
-        value = parseInt(value);
+        if (typeof integer === 'number') {
+          value = value.toFixed(integer) * 1;
+        } else {
+          value = parseInt(value);
+        }
       }
       return value;
     }

@@ -32,6 +32,7 @@ class GroupController extends Controller
         $group['status'] = 2;
       }
     }
+    $group['total_amount'] = $group['total_amount'] * 1;
     return $group;
   }
 
@@ -44,7 +45,7 @@ class GroupController extends Controller
       'limit_users' => 'min:0',
       'finishtime' => 'required',
       'commodities' => 'required',
-      'commodities.*.price' => 'required|integer|min:0'
+      'commodities.*.price' => 'required|min:0'
     ]);
 
     if ($err !== null) {
@@ -292,9 +293,12 @@ class GroupController extends Controller
       if ($result->userid != $uid) {
         return $this->json(19);
       }
+      /*
+       * 不再接口限制状态
       if ($result->status != 1) {
         return $this->json(20);
       }
+      */
       $result = DB::table('group')
         ->where('id', $id)
         ->update(['finishtime' => (time() - 1) * 1000]);

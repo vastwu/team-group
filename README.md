@@ -4,6 +4,15 @@
 
 # 更新说明
 
+## 2017-03-22
+### 新增与变更
+* 商品价格移除了整型限制，数据库字段调整为`DECIMAL(14,2)`
+* 可以使用 `[GET] /group/{拼团id}` 接口中的 `total_users` 展示拼团信息中的总人数
+
+### bug 修复
+* [x] 取消拼团时的状态判定bug
+* [x] `[GET] group/68/participant` 接口中错误的将 uid 当做 id, 另外为了安全起见，移除了该接口中用户敏感信息（`token`, `session_key`, `openid`），仅保留`name`, `uid`和`avatar`
+
 ## 2017-03-21
 ### 新增与变更
 * 批量查询某个团下的订单可以使用`/group/{团id}/participant`, 支持分页
