@@ -48,8 +48,10 @@ class ParticipantController extends Controller
   public function show(Request $request, $groupid, $pid)
   {
     $participant = DB::table('participant')
-      ->where('id', $pid)
+      ->select('participant.*', 'user.name', 'user.avatar')
+      ->where('participant.id', $pid)
       ->where('groupid', $groupid)
+      ->leftJoin('user', 'participant.uid', '=', 'user.id')
       ->first();
 
     if (!$participant) {
