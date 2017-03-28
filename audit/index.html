@@ -216,22 +216,27 @@
             <label>剩余时间</label>
             <div>{{groupDetail.remaining}}</div>
           </div>
-          <div class="row">
-            <label>开团金额</label>
-            <el-progress :percentage="groupDetail.per_amount"></el-progress>
-          </div>
-          <div class="row">
-            <label></label>
-            <div>{{groupDetail.amount}}</div>
-          </div>
-          <div class="row">
-            <label>开团人数</label>
-            <el-progress :percentage="groupDetail.per_users"></el-progress>
-          </div>
-          <div class="row">
-            <label></label>
-            <div>{{groupDetail.users}}</div>
-          </div>
+          <template  v-if="groupDetail.limit_amount > 0">
+            <div class="row">
+              <label>开团金额</label>
+              <el-progress :percentage="groupDetail.per_amount"></el-progress>
+            </div>
+            <div class="row">
+              <label></label>
+              <div>{{groupDetail.amount}}</div>
+            </div>
+          </template>
+          <template v-if="groupDetail.limit_users > 0">
+            <div class="row"  >
+              <label>开团人数</label>
+              <el-progress :percentage="groupDetail.per_users"></el-progress>
+            </div>
+            <div class="row">
+              <label></label>
+              <div>{{groupDetail.users}}</div>
+            </div>
+          </template>
+
           <div class="row">
             <label>商品数量</label>
             <div>
