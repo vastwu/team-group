@@ -10,7 +10,7 @@ define(function (require, exports, module) {
       limit_amount: 20003,
       limit_users: 30,
       finishtime: Date.now() + 24 * 3600 * 1000,
-      summary: '简介简介',
+      summary: '简介简介现货，秒发🌸自然乐园芦荟胶。请认准牌子再比价！十大用途: 1🍃可当补水面霜和面膜 ，2🍃妆前',
       images: ['http://www.baidu.com/a.png', 'http://yyy.com/ba/b'],
       contact: '11111111111',
       commodities: [{

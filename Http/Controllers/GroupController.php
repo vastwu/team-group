@@ -21,6 +21,7 @@ class GroupController extends Controller
     $group['images'] = json_decode($group['images']);
     // 商品
     $group['commodities'] = json_decode($group['commodities']);
+    $group['summary'] = urldecode($group['summary']);
     // 自定义字段
     $group['custom_fields'] = json_decode($group['custom_fields']);
     if ($group['status'] == 0 && $group['finishtime'] <= time() * 1000) {
@@ -75,7 +76,7 @@ class GroupController extends Controller
       'total_users' => 0,
       'createtime' => $createtime,
       'finishtime' => $params['finishtime'],
-      'summary' => isset($params['summary']) ? $params['summary'] : '',
+      'summary' => isset($params['summary']) ? urlencode($params['summary']) : '',
       'images' => json_encode(isset($params['images']) ? $params['images'] : []),
       'contact' => isset($params['contact']) ? $params['contact'] : '',
       'commodities' => json_encode($saveCommodities),
