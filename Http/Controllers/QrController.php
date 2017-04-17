@@ -9,6 +9,7 @@ use App\Http\Requests;
 
 class QrController extends Controller
 {
+  private $font = "";
   // 上边距
   private $thumb_top = 300;
   // 左右边距
@@ -19,8 +20,12 @@ class QrController extends Controller
   private $bg_width = 600;
   private $bg_height = 800;
 
+  private $summary_fontsize = 20;
+  private $summary_linespacing = 15;
+
   public function __construct()
   {
+    $this->font = __DIR__.'/msyh.ttf';
   }
   public function getImageSize($image) {
     $size = [
@@ -73,10 +78,9 @@ class QrController extends Controller
     }
   }
   public function drawTitle($image, $text, $color, $maxWidth, $offsetX, $offsetY) {
-    return
     // 分配颜色
     $textcolor = imagecolorallocate($image, $color[0], $color[1], $color[2]);
-    $font = __DIR__.'/msyh.ttf';
+    $font = $this->font;
     $fontSize = 31;
     // 防死循环
     $len = 0;
@@ -88,15 +92,69 @@ class QrController extends Controller
       $box = imagettfbbox ( $fontSize, 0, $font, $text);
       $len = $box[2] - $box[0];
     } while ($n > 0 && $len > $limitX);
-
     $x = ($maxWidth - $len) / 2;
     $y = $box[1] - $box[7] + $offsetY;
-    //var_dump($box);
-
     imagettftext($image, $fontSize, 0, $x, $y, $textcolor, $font, $text);
+  }
+  public function drawSummary($image, $text, $color, $maxWidth, $offsetX, $offsetY) {
+
+    //$text = "一\n二三\n四五六七八九十，一二三四五六七八九十；一二三四五六七八九十";
+
+    // 分配颜色
+    $textcolor = imagecolorallocate($image, $color[0], $color[1], $color[2]);
+    $font = $this->font;
+    $fontSize = $this->summary_fontsize;
+    $rowText = "";
+    $acceptWidth = $maxWidth - $offsetX * 2;
+    $x = $offsetX;
+    $y = $offsetY;
+
+    for ($i = 0; $i < mb_strlen($text); $i++) {
+      $rowBox = imagettfbbox($fontSize, 0, $font, $rowText);
+      $_string_length = $rowBox[2] - $rowBox[0];
+      // 多加一个字符, 看是否需要换行了
+      $addText = mb_substr($text, $i, 1);
+      $addBox = imagettfbbox($fontSize, 0, $font, $addText);
+      $addLen = $addBox[2] - $addBox[0];
+      if ($addText === "\n") {
+        // 强制换行
+        $addLen = $acceptWidth + 1;
+        $addText = '';
+      }
+      if ($_string_length + $addLen  < $acceptWidth) {
+        // 没超过
+        $rowText .= $addText;
+      } else {
+        // 多了，render
+        imagettftext($image, $fontSize, 0, $x, $y, $textcolor, $font, $rowText);
+        $rowText = "";
+        $y += $fontSize + $this->summary_linespacing;
+      }
+    }
+    if (mb_strlen($rowText) > 0) {
+      imagettftext($image, $fontSize, 0, $x, $y, $textcolor, $font, $rowText);
+    }
+    /*
+    // 防死循环
+    $len = 0;
+    $n = 100;
+    $limitX = $maxWidth - $offsetX;
+    do {
+      $fontSize--; 
+      $n--;
+      $box = imagettfbbox ( $fontSize, 0, $font, $text);
+      $len = $box[2] - $box[0];
+    } while ($n > 0 && $len > $limitX);
+    $x = ($maxWidth - $len) / 2;
+    $y = $box[1] - $box[7] + $offsetY;
+     */
+    //$x = 0;
+    //$y = 140;
+    //imagettftext($image, $fontSize, 0, $x, $y, $textcolor, $font, $text);
   }
   public function index (Request $request) 
   {
+
     $width = 100;
     $height = 300;
 
@@ -124,6 +182,7 @@ class QrController extends Controller
     //$textcolor = imagecolorallocate($bg, 0, 0, 0);
     //imagestring($bg, 20, 15, 10, "Hello world!", $textcolor);
     $this->drawTitle($bg, $title, [0, 0, 0], $bgImageSize['width'], 20, 7);
+    $this->drawSummary($bg, $summary, [0, 0, 0], $bgImageSize['width'], 20, 150);
     $this->drawThumb($bg, $images, $bgImageSize);
     // 计算中心点
     // 默认画在y轴下 60% 的位置
