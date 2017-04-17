@@ -8,6 +8,10 @@
 ### 新增与变更
 * 拼团的summary进行urlencode后写入db，获取时urldecode，用以支持emoji
 
+### bug 修复
+* 修复审核后台的状态展示问题
+* 修复审核后台的拼团详情进度条问题
+
 ## 2017-03-23
 ### 新增与变更
 * `[GET] /group/{拼团id}/participant/{订单id}` 接口新增参团者姓名和头像

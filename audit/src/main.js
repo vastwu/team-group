@@ -278,8 +278,8 @@ define(function (require, exports, module) {
           item.finishtime = timeFilter(item.finishtime);
           item.users = item.total_users + ' / ' + item.limit_users;
           item.amount = item.total_amount + ' / ' + item.limit_amount;
-          item.per_users = (item.total_users / item.limit_users).toFixed(2);
-          item.per_amount = (item.total_amount / item.limit_amount).toFixed(2);
+          item.per_users = (item.total_users / item.limit_users).toFixed(2) * 100;
+          item.per_amount = (item.total_amount / item.limit_amount).toFixed(2) * 100;
           item.participant.forEach(function (item) {
             item.createtime = timeFilter(item.createtime);
             item.commodity_sum = item.commodities.reduce(function (sum, item, index) {
