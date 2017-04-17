@@ -15,6 +15,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::resource('qr', 'QrController');
+Route::resource('info', 'InfoController');
 Route::resource('auditor', 'AuditorController');
 Route::resource('user', 'UserController');
 Route::resource('group', 'GroupController');

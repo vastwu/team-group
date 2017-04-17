@@ -22,6 +22,15 @@ class Controller extends BaseController
       }
       return null;
     }
+    public function image($image) {
+      //imagejpeg($image);
+      ob_start();
+      imagepng($image);
+      $content = ob_get_contents();
+      imagedestroy($image);
+      ob_end_clean();
+      return response($content)->header('Content-Type', 'image/png'); 
+    }
     public function json($errorCode, $result = "") {
       if ($errorCode !== 0) {
         $reason = Error::$reason;
