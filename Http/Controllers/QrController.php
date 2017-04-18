@@ -46,7 +46,44 @@ class QrController extends Controller
     );
     return $bg;
   }
-  public function getQRImage() {
+  public function getToken($focusReload = false) {
+
+    $wx_token = '';
+    if (!$focusReload) {
+      # 非强制刷新，先从db里找
+      $existConfig = DB::table('config')->where("key", "wx_token")->first(); 
+      $wx_token = isset($existConfig->value) ? $existConfig->value : '';
+    }
+    if (!$wx_token) {
+      // reload
+      $appId = env('WECHAT_APP_ID');
+      $secret = env('WECHAT_SECRET');
+      $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=$appId&secret=$secret";
+      $wechatResult = json_decode(file_get_contents($url), true);
+      if (!isset($wechatResult['errcode'])) {
+        $wx_token = $wechatResult['access_token'];
+        $existConfig = DB::table('config')->where("key", "wx_token")->first(); 
+        if ($existConfig) {
+          DB::table('config')
+            ->where('key', "wx_token")
+            //->where('id', 6)
+            ->update([
+              "value" => $wx_token,
+              "lastupdatetime" => time()
+            ]);
+        } else {
+          DB::table('config')->insert([
+            "key" => "wx_token",
+            "value" => $wx_token,
+            "lastupdatetime" => time()
+          ]);
+        }
+      }
+    }
+    return $wx_token;
+  }
+  public function getQRImage($token, $size = 300, $path = 'pages/index', $canReload = true) {
+    // example
     $codeSize = 330;
     $code = imagecreatetruecolor($codeSize, $codeSize);
     $img = imagecreatefrompng (dirname(__FILE__).'/../qr.png' );
@@ -58,6 +95,32 @@ class QrController extends Controller
       $size['width'], $size['height']
     );
     return $code;
+
+    //$codeSize = 330;
+    //$path = 'pages/index?query=1';
+
+    $url = "https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token=$token";
+
+    $post_data = "{\"path\": \"$path\", \"width\": $size}";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    //$img = curl_exec($ch);
+    $img = curl_exec($ch);
+    curl_close($ch);
+    try {
+      $img = imagecreatefromstring($img);
+    } catch (\Exception $e) {
+      if ($canReload) {
+        // 允许刷新token后尝试一次
+        $token = $this->getToken(true);
+        return $this->getQRImage($token, $size, $path, false);
+      }
+    }
+    return $img;
   }
   public function drawThumb($bg, $thumbs, $bgSize) {
     $offset = $this->thumb_offset;
@@ -134,31 +197,22 @@ class QrController extends Controller
     if (mb_strlen($rowText) > 0) {
       imagettftext($image, $fontSize, 0, $x, $y, $textcolor, $font, $rowText);
     }
-    /*
-    // 防死循环
-    $len = 0;
-    $n = 100;
-    $limitX = $maxWidth - $offsetX;
-    do {
-      $fontSize--; 
-      $n--;
-      $box = imagettfbbox ( $fontSize, 0, $font, $text);
-      $len = $box[2] - $box[0];
-    } while ($n > 0 && $len > $limitX);
-    $x = ($maxWidth - $len) / 2;
-    $y = $box[1] - $box[7] + $offsetY;
-     */
-    //$x = 0;
-    //$y = 140;
-    //imagettftext($image, $fontSize, 0, $x, $y, $textcolor, $font, $text);
+  }
+  public function show (Request $request) 
+  {
+    $token = $this->getToken();
+    $codeImage = $this->getQRImage($token);
+  
+    return $this->json(0, ["tk" => $token]);
   }
   public function index (Request $request) 
   {
-
     $width = 100;
     $height = 300;
 
     $gid = $request->get('gid');
+    $appPath = $request->get('path');
+
     $result = DB::table('group')
       ->where('id', $gid)
       ->get();
@@ -172,15 +226,12 @@ class QrController extends Controller
     $contact = $group->contact;
 
     $bg = $this->getBgImage($this->bg_width, $this->bg_height);
-    $codeImage = $this->getQRImage();
+    $token = $this->getToken();
+    $codeImage = $this->getQRImage($token, 300, $appPath);
 
     $bgImageSize = $this->getImageSize($bg);
     $codeImageSize = $this->getImageSize($codeImage);
 
-    //$image = imagecreatetruecolor(200, 100);
-    //$bgcolor = imagecolorallocate($image, 0, 0, 0);  
-    //$textcolor = imagecolorallocate($bg, 0, 0, 0);
-    //imagestring($bg, 20, 15, 10, "Hello world!", $textcolor);
     $this->drawTitle($bg, $title, [0, 0, 0], $bgImageSize['width'], 20, 7);
     $this->drawSummary($bg, $summary, [0, 0, 0], $bgImageSize['width'], 20, 150);
     $this->drawThumb($bg, $images, $bgImageSize);
@@ -195,8 +246,6 @@ class QrController extends Controller
       // 剩下的部分不够画的, 就反推位置
       $drawPosition['y'] = $bgImageSize['height'] - $codeImageSize['height'] - 20;
     }
-
-
     imagecopy ( $bg, $codeImage, $drawPosition['x'], $drawPosition['y'], 0, 0, $codeImageSize['width'], $codeImageSize['height']);
     return $this->image($bg);
   }
