@@ -73,8 +73,12 @@ define(function (require, exports, module) {
         images: [],
         //apiDomain: 'http://laravel.app',
         apiDomain: 'http://pintuan.yuanwei100.com',
-        userToken: '8af033b658d7a66666370620b7c3b80b',
+        userToken: 'b6393e276771e416dc299467dce7fa0f',
         interfaces: vm,
+        qr: {
+          src: 'about:blank',
+          input: '/qr?gid=282&path=pages/index&width=500&height=1000'
+        },
         comments: [
           '接口尽可能遵循restful规范设计, 以url path表示资源',
           '不信任接口输入的uid，所有涉及用户自身的行为，均以传递的token为准，例如创建拼团不需要传创建者uid，但必须带上token，创建者为token对应的用户',
