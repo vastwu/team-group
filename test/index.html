@@ -54,6 +54,7 @@
           <li>path: 生二维码必须的path, 例如page/index?gid=222，务必encodeurl，因为里面的?会干扰正常的url格式</li>
           <li>force: 强制不使用图片缓存, 比如拼团信息有变更，或者用于测试，每次重新绘制时会略微慢一些</li>
           <li>width / height: 需要生成图片的尺寸，一般是和屏幕一样即可, 默认值为 1125 * 2001, 3倍的设计尺寸（对于比例不同于设计稿的图片尺寸请求，会以短边为基准，居中显示）</li>
+          <li>wxcode: 是否使用小程序码，默认false</li>
         </ul>
         <div class="api-list" >
           <h3 class="pointer" id="anchor_upload">生成二维码图片</h3>

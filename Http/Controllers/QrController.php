@@ -105,7 +105,7 @@ class QrController extends Controller
     }
     return $wx_token;
   }
-  public function getQRImage($token, $size, $path = 'pages/index', $canReload = true) {
+  public function getQRImage($wxcode, $token, $size, $path = 'pages/index', $canReload = true) {
     // 模拟
     $isMock = false;
     //$path = 'pages/index?query=1';
@@ -113,7 +113,11 @@ class QrController extends Controller
     if ($isMock) {
       $srcImg = imagecreatefrompng (dirname(__FILE__).'/../qr.png' );
     } else {
-      $url = "https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token=$token";
+      if ($wxcode) {
+        $url = "https://api.weixin.qq.com/wxa/getwxacode?access_token=$token";
+      } else {
+        $url = "https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token=$token";
+      }
       $post_data = "{\"path\": \"$path\", \"width\": $size}";
       $ch = curl_init();
       curl_setopt($ch, CURLOPT_URL, $url);
@@ -129,7 +133,7 @@ class QrController extends Controller
         if ($canReload) {
           // 允许刷新token后尝试一次
           $token = $this->getToken(true);
-          return $this->getQRImage($token, $size, $path, false);
+          return $this->getQRImage($wxcode, $token, $size, $path, false);
         } else {
           return 400; 
         }
@@ -251,6 +255,7 @@ class QrController extends Controller
     $force = $request->get('force');
     $width = $request->get('width');
     $height = $request->get('height');
+    $wxcode = $request->get('wxcode');
 
     $filename = $this->distFileDir.'/'.urlencode($appPath)."_$gid.png";
     $fromCache = false;
@@ -258,7 +263,7 @@ class QrController extends Controller
       $fromCache = true;
       $img = imagecreatefrompng($filename);
     } else {
-      $img = $this->redraw($gid, $appPath);
+      $img = $this->redraw($gid, $appPath, $wxcode);
       imagepng($img, $filename);
     }
     if ($width && $height) {
@@ -296,7 +301,7 @@ class QrController extends Controller
     return $distImage;
   }
   // 绘图
-  public function redraw ($gid, $appPath) 
+  public function redraw ($gid, $appPath, $wxcode = false) 
   {
     $group = DB::table('group')
       ->leftJoin('user', 'user.id', '=', 'group.userid')
@@ -342,7 +347,7 @@ class QrController extends Controller
       $this->drawImageByUrl($bg, $url, $thumbSize, $thumbX, $this->thumb_y);
       $thumbX += $thumbSize + $this->thumb_spacing;
     }
-    $codeImage = $this->getQRImage($token, 390, $appPath);
+    $codeImage = $this->getQRImage($wxcode, $token, 390, $appPath);
     $codeImageSize = $this->getImageSize($codeImage);
     imagecopy ( $bg, $codeImage, 367.5, 1233, 0, 0, $codeImageSize['width'], $codeImageSize['height']);
 
