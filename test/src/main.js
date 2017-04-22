@@ -77,7 +77,7 @@ define(function (require, exports, module) {
         interfaces: vm,
         qr: {
           src: 'about:blank',
-          input: '/qr?gid=282&path=pages/index&width=500&height=1000'
+          input: '/qr?gid=282&path=' + encodeURIComponent('pages/cardDetail/cardDetail?id=282') + '&width=500&height=1000'
         },
         comments: [
           '接口尽可能遵循restful规范设计, 以url path表示资源',

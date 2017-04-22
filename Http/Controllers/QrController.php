@@ -45,6 +45,7 @@ class QrController extends Controller
 
   public function __construct()
   {
+    $this->middleware('auth');
     $this->font = __DIR__.'/msyh.ttf';
     $this->distFileDir = public_path('uploads');
     $this->distFileDir = $this->distFileDir.'/qr';
@@ -252,7 +253,9 @@ class QrController extends Controller
     $height = $request->get('height');
 
     $filename = $this->distFileDir.'/'.urlencode($appPath)."_$gid.png";
+    $fromCache = false;
     if (file_exists($filename) && $force !== "1") {
+      $fromCache = true;
       $img = imagecreatefrompng($filename);
     } else {
       $img = $this->redraw($gid, $appPath);
@@ -261,7 +264,7 @@ class QrController extends Controller
     if ($width && $height) {
       $img = $this->fitSize($img, $width, $height);
     }
-    return $this->image($img);
+    return $this->image($img, $fromCache);
   }
   // 适配尺寸
   public function fitSize ($sourceImage, $targetWidth, $targetHeight)
